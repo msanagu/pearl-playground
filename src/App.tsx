@@ -1,7 +1,6 @@
-import { useState } from 'react';
 import { Stack, Row, Text, Button, Card, color } from '@msanagu/pearl';
 import { ChatPanel } from './ChatPanel';
-import type { ChatMessage } from './ChatMessage';
+import { useAssistant } from './useAssistant';
 
 /**
  * Two regions, deliberately separated: the canvas (left, generated content
@@ -10,11 +9,7 @@ import type { ChatMessage } from './ChatMessage';
  * operating on it, and vice versa.
  */
 function App() {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-
-  function handleSend(text: string) {
-    setMessages((prev) => [...prev, { id: crypto.randomUUID(), text }]);
-  }
+  const assistant = useAssistant();
 
   return (
     <Row style={{ minHeight: '100vh', alignItems: 'stretch' }}>
@@ -41,7 +36,7 @@ function App() {
         </Stack>
       </div>
 
-      <ChatPanel messages={messages} onSend={handleSend} />
+      <ChatPanel messages={assistant.messages} pending={assistant.pending} hasApiKey={assistant.hasApiKey} onSend={assistant.send} />
     </Row>
   );
 }

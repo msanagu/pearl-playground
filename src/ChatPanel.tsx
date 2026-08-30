@@ -4,6 +4,8 @@ import './chrome.css';
 
 interface ChatPanelProps {
   messages: ChatMessage[];
+  pending: boolean;
+  hasApiKey: boolean;
   onSend: (text: string) => void;
 }
 
@@ -21,10 +23,11 @@ const MAX_WIDTH = 600;
  * collapsing renders only a fixed-position reopen button (out of flex flow),
  * so the canvas's `flex: 1` fills the freed width automatically.
  */
-export function ChatPanel({ messages, onSend }: ChatPanelProps) {
+export function ChatPanel({ messages, pending, hasApiKey, onSend }: ChatPanelProps) {
   const [open, setOpen] = useState(true);
   const [width, setWidth] = useState(DEFAULT_WIDTH);
   const draggingRef = useRef(false);
+  const messagesRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function onMouseMove(e: MouseEvent) {
@@ -43,10 +46,14 @@ export function ChatPanel({ messages, onSend }: ChatPanelProps) {
     };
   }, []);
 
+  useEffect(() => {
+    messagesRef.current?.scrollTo({ top: messagesRef.current.scrollHeight });
+  }, [messages]);
+
   if (!open) {
     return (
       <button type="button" className="chrome-reopen-button" onClick={() => setOpen(true)}>
-        Open assistant
+        Open Pearl Assistant
       </button>
     );
   }
@@ -56,31 +63,33 @@ export function ChatPanel({ messages, onSend }: ChatPanelProps) {
       <div className="chrome-resize-handle" onMouseDown={() => (draggingRef.current = true)} />
 
       <div className="chrome-header">
-        <div className="chrome-label">assistant · not wired to a model</div>
+        <div className="chrome-label">
+          Pearl Assistant{!hasApiKey && ' · no API key set'}
+        </div>
         <button type="button" className="chrome-close-button" onClick={() => setOpen(false)} aria-label="Close assistant panel">
           ×
         </button>
       </div>
 
-      <div className="chrome-messages">
+      <div className="chrome-messages" ref={messagesRef}>
         {messages.map((m) => (
-          <div className="chrome-message" key={m.id}>
-            {m.text}
+          <div className={`chrome-message chrome-message--${m.role}`} key={m.id}>
+            {m.text || (pending && m.role === 'assistant' ? '…' : '')}
           </div>
         ))}
       </div>
 
-      <PanelInput onSend={onSend} />
+      <PanelInput onSend={onSend} disabled={pending} />
     </div>
   );
 }
 
-function PanelInput({ onSend }: { onSend: (text: string) => void }) {
+function PanelInput({ onSend, disabled }: { onSend: (text: string) => void; disabled: boolean }) {
   const [value, setValue] = useState('');
 
   function submit() {
     const trimmed = value.trim();
-    if (!trimmed) return;
+    if (!trimmed || disabled) return;
     onSend(trimmed);
     setValue('');
   }
@@ -107,11 +116,12 @@ function PanelInput({ onSend }: { onSend: (text: string) => void }) {
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Describe the UI you want… (Shift+Enter for a new line)"
+        placeholder="Ask about the design system, or describe UI to generate… (Shift+Enter for a new line)"
         rows={2}
+        disabled={disabled}
       />
-      <button type="submit" className="chrome-button">
-        Send
+      <button type="submit" className="chrome-button" disabled={disabled}>
+        {disabled ? '…' : 'Send'}
       </button>
     </form>
   );

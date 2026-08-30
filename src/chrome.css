@@ -81,10 +81,20 @@
 }
 
 .chrome-message {
-  background: #fff;
   border: 1px solid #ccc;
   border-radius: 4px;
   padding: 8px;
+  white-space: pre-wrap;
+}
+
+.chrome-message--user {
+  background: #e4e9f5;
+  align-self: flex-end;
+  max-width: 85%;
+}
+
+.chrome-message--assistant {
+  background: #fff;
 }
 
 .chrome-input-row {
@@ -114,4 +124,10 @@
   font-size: inherit;
   cursor: pointer;
   flex-shrink: 0;
+}
+
+.chrome-input:disabled,
+.chrome-button:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
