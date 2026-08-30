@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import Anthropic from '@anthropic-ai/sdk';
+import Anthropic, { APIError } from '@anthropic-ai/sdk';
 import { getStoredApiKey, setStoredApiKey, clearStoredApiKey } from './apiKeyStore';
 import { buildSystemPrompt } from './systemPrompt';
 import type { ChatMessage } from './ChatMessage';
@@ -12,7 +12,7 @@ const SYSTEM_PROMPT = buildSystemPrompt();
 const DEV_FALLBACK_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY;
 
 /** Extracts the human-readable message from the API's nested error body, falling back to the SDK's own formatted message. */
-function apiErrorMessage(err: Anthropic.APIError): string {
+function apiErrorMessage(err: APIError): string {
   const body = err.error as { error?: { message?: string } } | undefined;
   return body?.error?.message ?? err.message;
 }
@@ -66,7 +66,7 @@ export function useAssistant() {
         }
       }
     } catch (err) {
-      const message = err instanceof Anthropic.APIError ? apiErrorMessage(err) : 'Request failed.';
+      const message = err instanceof APIError ? apiErrorMessage(err) : 'Request failed.';
       setMessages((prev) => prev.map((m) => (m.id === assistantId ? { ...m, text: `Error: ${message}` } : m)));
     } finally {
       setPending(false);
