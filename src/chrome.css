@@ -1,33 +1,52 @@
 /*
- * Styles for this app's own chrome (the assistant panel) — deliberately
- * plain, system-default-ish, and NOT using any @msanagu/pearl token or
- * component. Kept in its own file, scoped by a "chrome-" prefix, so it's
- * obviously local to this project rather than part of Pearl's theme system.
+ * Styles for this app's own chrome (the assistant panel) — project-local,
+ * NOT a @msanagu/pearl theme. Deliberately structured like one, though: the
+ * custom-property block below mirrors Pearl's own token categories (color,
+ * space, radius, fontFamily — see src/tokens.ts in the pearl repo) so that
+ * if this ever becomes a real "Assistant" theme, porting is a mechanical
+ * rename (--chrome-color-accent -> vars.color.accent), not a rewrite.
  * Placeholder look — not a design decision to defend long-term.
  */
 
 .chrome-panel {
+  /* --- token layer (mirrors Pearl's color/space/radius/fontFamily shape) --- */
+  --chrome-color-background: #ffffff;
+  --chrome-color-surface: #f7f7f8;
+  --chrome-color-border: #e4e4e7;
+  --chrome-color-text: #18181b;
+  --chrome-color-text-subtle: #71717a;
+  --chrome-color-accent: #3a6df0;
+  --chrome-color-accent-contrast: #ffffff;
+  --chrome-space-xs: 4px;
+  --chrome-space-sm: 8px;
+  --chrome-space-md: 12px;
+  --chrome-space-lg: 16px;
+  --chrome-space-xl: 24px;
+  --chrome-radius-sm: 6px;
+  --chrome-radius-md: 10px;
+  --chrome-radius-full: 999px;
+  --chrome-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+
   flex-shrink: 0;
   height: 100vh;
   position: sticky;
   top: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 16px;
   box-sizing: border-box;
-  background: #f0f0f0;
-  color: #1a1a1a;
-  font-family: system-ui, sans-serif;
+  background: var(--chrome-color-background);
+  color: var(--chrome-color-text);
+  font-family: var(--chrome-font-family);
   font-size: 14px;
+  line-height: 1.5;
 }
 
 .chrome-panel--right {
-  border-left: 1px solid #ccc;
+  border-left: 1px solid var(--chrome-color-border);
 }
 
 .chrome-panel--left {
-  border-right: 1px solid #ccc;
+  border-right: 1px solid var(--chrome-color-border);
 }
 
 .chrome-resize-handle {
@@ -44,14 +63,16 @@
   right: -4px;
 }
 .chrome-resize-handle:hover {
-  background: #ccc;
+  background: var(--chrome-color-border);
 }
 
 .chrome-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--chrome-space-sm);
+  padding: var(--chrome-space-md) var(--chrome-space-lg);
+  border-bottom: 1px solid var(--chrome-color-border);
 }
 
 .chrome-side-toggle {
@@ -63,46 +84,66 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #999;
-  border-radius: 4px;
-  background: #e0e0e0;
-  width: 22px;
-  height: 22px;
+  border: none;
+  border-radius: var(--chrome-radius-sm);
+  background: transparent;
+  width: 26px;
+  height: 26px;
   padding: 0;
   cursor: pointer;
-  color: #333;
+  color: var(--chrome-color-text-subtle);
+}
+.chrome-side-button:hover {
+  background: var(--chrome-color-surface);
 }
 
 .chrome-side-button--active {
-  background: #c9c9c9;
-  border-color: #666;
+  background: var(--chrome-color-surface);
+  color: var(--chrome-color-text);
 }
 
 .chrome-label {
-  color: #666;
-  font-size: 12px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.chrome-label-hint {
+  font-weight: 400;
+  color: var(--chrome-color-text-subtle);
 }
 
 .chrome-close-button {
-  border: 1px solid #999;
-  border-radius: 4px;
-  background: #e0e0e0;
-  width: 22px;
-  height: 22px;
+  border: none;
+  border-radius: var(--chrome-radius-sm);
+  background: transparent;
+  width: 26px;
+  height: 26px;
   line-height: 1;
   cursor: pointer;
+  color: var(--chrome-color-text-subtle);
+  font-size: 16px;
+}
+.chrome-close-button:hover {
+  background: var(--chrome-color-surface);
+  color: var(--chrome-color-text);
 }
 
 .chrome-reopen-button {
   position: fixed;
   top: 16px;
-  border: 1px solid #999;
-  border-radius: 4px;
-  padding: 6px 10px;
-  background: #e0e0e0;
-  font-family: system-ui, sans-serif;
+  display: flex;
+  align-items: center;
+  gap: var(--chrome-space-xs);
+  border: 1px solid var(--chrome-color-border, #e4e4e7);
+  border-radius: var(--chrome-radius-full, 999px);
+  padding: 6px 14px 6px 10px;
+  background: #ffffff;
+  color: #18181b;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
   z-index: 10;
 }
 
@@ -112,57 +153,79 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--chrome-space-lg);
+  padding: var(--chrome-space-lg);
 }
 
 .chrome-message {
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 8px;
   white-space: pre-wrap;
 }
 
+/* User turns read as a distinct, bounded card — the thing the assistant is
+   responding to. Assistant turns read as flowing document text, not a
+   bubble, matching how established chat-composer tools (Claude, ChatGPT,
+   Figma Make) present the model's own reply. */
 .chrome-message--user {
-  background: #e4e9f5;
+  background: var(--chrome-color-surface);
+  border-radius: var(--chrome-radius-md);
+  padding: var(--chrome-space-sm) var(--chrome-space-md);
   align-self: flex-end;
   max-width: 85%;
 }
 
 .chrome-message--assistant {
-  background: #fff;
+  padding: 0 2px;
 }
 
-.chrome-input-row {
-  display: flex;
-  align-items: flex-end;
-  gap: 8px;
+.chrome-composer {
+  margin: 0 var(--chrome-space-lg) var(--chrome-space-lg);
+  border: 1px solid var(--chrome-color-border);
+  border-radius: var(--chrome-radius-md);
+  background: var(--chrome-color-background);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  overflow: hidden;
 }
 
 .chrome-input {
-  flex: 1;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 8px 10px;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  border: none;
+  outline: none;
+  padding: var(--chrome-space-md) var(--chrome-space-md) var(--chrome-space-sm);
   font-family: inherit;
   font-size: inherit;
-  resize: vertical;
-  min-height: 2.4em;
+  color: var(--chrome-color-text);
+  resize: none;
+  min-height: 2.6em;
   max-height: 10em;
+  background: transparent;
+}
+.chrome-input::placeholder {
+  color: var(--chrome-color-text-subtle);
 }
 
-.chrome-button {
-  border: 1px solid #999;
-  border-radius: 4px;
-  padding: 8px 14px;
-  background: #e0e0e0;
-  font-family: inherit;
-  font-size: inherit;
+.chrome-composer-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 var(--chrome-space-sm) var(--chrome-space-sm);
+}
+
+.chrome-send-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--chrome-radius-full);
+  width: 30px;
+  height: 30px;
+  background: var(--chrome-color-accent);
+  color: var(--chrome-color-accent-contrast);
   cursor: pointer;
-  flex-shrink: 0;
 }
-
-.chrome-input:disabled,
-.chrome-button:disabled {
-  opacity: 0.6;
+.chrome-send-button:disabled {
+  background: var(--chrome-color-border);
+  color: var(--chrome-color-text-subtle);
   cursor: default;
 }

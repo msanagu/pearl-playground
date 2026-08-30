@@ -12,7 +12,7 @@ import { useAssistant } from './useAssistant';
  */
 function App() {
   const assistant = useAssistant();
-  const [side, setSide] = useState<PanelSide>('right');
+  const [side, setSide] = useState<PanelSide>('left');
 
   const canvas = (
     <div style={{ flex: 1, overflowY: 'auto', background: color.background }}>

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { TbLayoutSidebarLeftCollapse, TbLayoutSidebarRightCollapse } from 'react-icons/tb';
+import { TbLayoutSidebarLeftCollapse, TbLayoutSidebarRightCollapse, TbArrowUp } from 'react-icons/tb';
 import type { ChatMessage } from './ChatMessage';
 import './chrome.css';
 
@@ -14,15 +14,16 @@ interface ChatPanelProps {
   onSend: (text: string) => void;
 }
 
-const DEFAULT_WIDTH = 340;
-const MIN_WIDTH = 260;
+const DEFAULT_WIDTH = 360;
+const MIN_WIDTH = 280;
 const MAX_WIDTH = 600;
 
 /**
  * Docked app chrome, not canvas content — the tool operating on the
  * workspace, never something the workspace itself could generate. Styled
- * from chrome.css, deliberately not any @msanagu/pearl token/component, so
- * it can never be mistaken for Pearl output regardless of the canvas theme.
+ * from chrome.css (a token layer shaped like Pearl's own, but not Pearl —
+ * see that file's header), so it can never be mistaken for Pearl output
+ * regardless of the canvas theme.
  *
  * Closable and drag-resizable so the full canvas is reachable at any time —
  * collapsing renders only a fixed-position reopen button (out of flex flow),
@@ -62,7 +63,8 @@ export function ChatPanel({ messages, pending, hasApiKey, side, onSideChange, on
   if (!open) {
     return (
       <button type="button" className="chrome-reopen-button" style={{ [side]: 16 } as React.CSSProperties} onClick={() => setOpen(true)}>
-        Open Pearl Assistant
+        {side === 'left' ? <TbLayoutSidebarLeftCollapse size={15} /> : <TbLayoutSidebarRightCollapse size={15} />}
+        Pearl Assistant
       </button>
     );
   }
@@ -93,7 +95,7 @@ export function ChatPanel({ messages, pending, hasApiKey, side, onSideChange, on
           </button>
         </div>
         <div className="chrome-label">
-          Pearl Assistant{!hasApiKey && ' · no API key set'}
+          Pearl Assistant{!hasApiKey && <span className="chrome-label-hint"> · no API key set</span>}
         </div>
         <button type="button" className="chrome-close-button" onClick={() => setOpen(false)} aria-label="Close assistant panel">
           ×
@@ -139,19 +141,21 @@ function PanelInput({ onSend, disabled }: { onSend: (text: string) => void; disa
   }
 
   return (
-    <form onSubmit={handleSubmit} className="chrome-input-row">
+    <form onSubmit={handleSubmit} className="chrome-composer">
       <textarea
         className="chrome-input"
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Ask about the design system, or describe UI to generate… (Shift+Enter for a new line)"
+        placeholder="Ask about the design system, or describe UI to generate…"
         rows={2}
         disabled={disabled}
       />
-      <button type="submit" className="chrome-button" disabled={disabled}>
-        {disabled ? '…' : 'Send'}
-      </button>
+      <div className="chrome-composer-footer">
+        <button type="submit" className="chrome-send-button" disabled={disabled || !value.trim()} aria-label="Send">
+          <TbArrowUp size={16} />
+        </button>
+      </div>
     </form>
   );
 }
