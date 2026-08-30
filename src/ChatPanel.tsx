@@ -2,10 +2,14 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import type { ChatMessage } from './ChatMessage';
 import './chrome.css';
 
+export type PanelSide = 'left' | 'right';
+
 interface ChatPanelProps {
   messages: ChatMessage[];
   pending: boolean;
   hasApiKey: boolean;
+  side: PanelSide;
+  onSideChange: (side: PanelSide) => void;
   onSend: (text: string) => void;
 }
 
@@ -21,9 +25,11 @@ const MAX_WIDTH = 600;
  *
  * Closable and drag-resizable so the full canvas is reachable at any time —
  * collapsing renders only a fixed-position reopen button (out of flex flow),
- * so the canvas's `flex: 1` fills the freed width automatically.
+ * so the canvas's `flex: 1` fills the freed width automatically. Which edge
+ * it docks to is owned by the parent (`side`/`onSideChange`) since that
+ * decides sibling order in the layout, not just this component's own styles.
  */
-export function ChatPanel({ messages, pending, hasApiKey, onSend }: ChatPanelProps) {
+export function ChatPanel({ messages, pending, hasApiKey, side, onSideChange, onSend }: ChatPanelProps) {
   const [open, setOpen] = useState(true);
   const [width, setWidth] = useState(DEFAULT_WIDTH);
   const draggingRef = useRef(false);
@@ -32,7 +38,9 @@ export function ChatPanel({ messages, pending, hasApiKey, onSend }: ChatPanelPro
   useEffect(() => {
     function onMouseMove(e: MouseEvent) {
       if (!draggingRef.current) return;
-      const next = window.innerWidth - e.clientX;
+      // Dragging the handle measures distance from whichever screen edge
+      // the panel is docked to — the opposite edge from a right-docked panel.
+      const next = side === 'right' ? window.innerWidth - e.clientX : e.clientX;
       setWidth(Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, next)));
     }
     function onMouseUp() {
@@ -44,7 +52,7 @@ export function ChatPanel({ messages, pending, hasApiKey, onSend }: ChatPanelPro
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup', onMouseUp);
     };
-  }, []);
+  }, [side]);
 
   useEffect(() => {
     messagesRef.current?.scrollTo({ top: messagesRef.current.scrollHeight });
@@ -52,17 +60,37 @@ export function ChatPanel({ messages, pending, hasApiKey, onSend }: ChatPanelPro
 
   if (!open) {
     return (
-      <button type="button" className="chrome-reopen-button" onClick={() => setOpen(true)}>
+      <button type="button" className="chrome-reopen-button" style={{ [side]: 16 } as React.CSSProperties} onClick={() => setOpen(true)}>
         Open Pearl Assistant
       </button>
     );
   }
 
   return (
-    <div className="chrome-panel" style={{ width }}>
+    <div className={`chrome-panel chrome-panel--${side}`} style={{ width }}>
       <div className="chrome-resize-handle" onMouseDown={() => (draggingRef.current = true)} />
 
       <div className="chrome-header">
+        <div className="chrome-side-toggle" role="group" aria-label="Dock assistant panel to">
+          <button
+            type="button"
+            className={`chrome-side-button${side === 'left' ? ' chrome-side-button--active' : ''}`}
+            onClick={() => onSideChange('left')}
+            aria-label="Dock to left"
+            aria-pressed={side === 'left'}
+          >
+            ⇤
+          </button>
+          <button
+            type="button"
+            className={`chrome-side-button${side === 'right' ? ' chrome-side-button--active' : ''}`}
+            onClick={() => onSideChange('right')}
+            aria-label="Dock to right"
+            aria-pressed={side === 'right'}
+          >
+            ⇥
+          </button>
+        </div>
         <div className="chrome-label">
           Pearl Assistant{!hasApiKey && ' · no API key set'}
         </div>

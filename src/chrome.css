@@ -20,17 +20,28 @@
   color: #1a1a1a;
   font-family: system-ui, sans-serif;
   font-size: 14px;
+}
+
+.chrome-panel--right {
   border-left: 1px solid #ccc;
-  position: relative;
+}
+
+.chrome-panel--left {
+  border-right: 1px solid #ccc;
 }
 
 .chrome-resize-handle {
   position: absolute;
-  left: -4px;
   top: 0;
   width: 8px;
   height: 100%;
   cursor: col-resize;
+}
+.chrome-panel--right .chrome-resize-handle {
+  left: -4px;
+}
+.chrome-panel--left .chrome-resize-handle {
+  right: -4px;
 }
 .chrome-resize-handle:hover {
   background: #ccc;
@@ -40,6 +51,27 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
+}
+
+.chrome-side-toggle {
+  display: flex;
+  gap: 2px;
+}
+
+.chrome-side-button {
+  border: 1px solid #999;
+  border-radius: 4px;
+  background: #e0e0e0;
+  width: 22px;
+  height: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.chrome-side-button--active {
+  background: #c9c9c9;
+  border-color: #666;
 }
 
 .chrome-label {
@@ -60,7 +92,6 @@
 .chrome-reopen-button {
   position: fixed;
   top: 16px;
-  right: 16px;
   border: 1px solid #999;
   border-radius: 4px;
   padding: 6px 10px;
