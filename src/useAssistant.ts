@@ -55,17 +55,26 @@ export function useAssistant(activeTheme: ThemeName) {
     setPending(true);
 
     try {
+      // display: "summarized" is required to actually receive thinking
+      // content — Opus 5 thinks by default, but the stream sends empty
+      // thinking text unless this is set explicitly.
       const stream = client.messages.stream({
         model: 'claude-opus-5',
         max_tokens: 4096,
         system: systemPrompt,
         messages: history,
+        thinking: { type: 'adaptive', display: 'summarized' },
       });
 
       for await (const event of stream) {
-        if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
-          const chunk = event.delta.text;
-          setMessages((prev) => prev.map((m) => (m.id === assistantId ? { ...m, text: m.text + chunk } : m)));
+        if (event.type === 'content_block_delta') {
+          if (event.delta.type === 'text_delta') {
+            const chunk = event.delta.text;
+            setMessages((prev) => prev.map((m) => (m.id === assistantId ? { ...m, text: m.text + chunk } : m)));
+          } else if (event.delta.type === 'thinking_delta') {
+            const chunk = event.delta.thinking;
+            setMessages((prev) => prev.map((m) => (m.id === assistantId ? { ...m, thinking: (m.thinking ?? '') + chunk } : m)));
+          }
         }
       }
     } catch (err) {

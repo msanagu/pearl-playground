@@ -127,19 +127,24 @@ export function ChatPanel({ messages, pending, hasApiKey, side, onSideChange, on
       {hasApiKey ? (
         <>
           <div className="chrome-messages" ref={messagesRef}>
-            {messages.map((m) => (
-              <div className={`chrome-message chrome-message--${m.role}`} key={m.id}>
-                {m.role === 'assistant' ? (
-                  m.text ? (
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.text}</ReactMarkdown>
+            {messages.map((m, i) => {
+              const isStreaming = pending && i === messages.length - 1;
+              return (
+                <div className={`chrome-message chrome-message--${m.role}`} key={m.id}>
+                  {m.role === 'assistant' && m.thinking && (
+                    <details className="chrome-thinking" open={isStreaming}>
+                      <summary className="chrome-thinking-summary">{isStreaming && <TypingDots small />} Thinking</summary>
+                      <div className="chrome-thinking-body">{m.thinking}</div>
+                    </details>
+                  )}
+                  {m.role === 'assistant' ? (
+                    m.text ? <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.text}</ReactMarkdown> : isStreaming && !m.thinking && <TypingDots />
                   ) : (
-                    pending && '…'
-                  )
-                ) : (
-                  m.text
-                )}
-              </div>
-            ))}
+                    m.text
+                  )}
+                </div>
+              );
+            })}
           </div>
           <PanelInput onSend={onSend} disabled={pending} />
         </>
@@ -147,6 +152,16 @@ export function ChatPanel({ messages, pending, hasApiKey, side, onSideChange, on
         <ApiKeyGate onSubmit={onSetApiKey} />
       )}
     </div>
+  );
+}
+
+function TypingDots({ small }: { small?: boolean }) {
+  return (
+    <span className={`chrome-typing-dots${small ? ' chrome-typing-dots--small' : ''}`}>
+      <span />
+      <span />
+      <span />
+    </span>
   );
 }
 

@@ -417,3 +417,78 @@
   color: var(--chrome-color-text-subtle);
   cursor: default;
 }
+
+/* Reasoning transparency — the raw stream of thinking_delta events,
+   collapsible so it doesn't dominate the message once there's a real
+   answer. Auto-expanded only while this is the message currently
+   streaming (see ChatPanel's `isStreaming`); collapses once done, same as
+   most chat tools that surface a model's reasoning. */
+.chrome-thinking {
+  margin-bottom: var(--chrome-space-sm);
+  border: 1px solid var(--chrome-color-border);
+  border-radius: var(--chrome-radius-sm);
+  background: var(--chrome-color-surface);
+}
+
+.chrome-thinking-summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  color: var(--chrome-color-text-subtle);
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+}
+.chrome-thinking-summary::-webkit-details-marker {
+  display: none;
+}
+
+.chrome-thinking-body {
+  padding: 0 10px 10px;
+  font-size: 12px;
+  color: var(--chrome-color-text-subtle);
+  white-space: pre-wrap;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* Animated typing indicator — three dots, staggered bounce. Used both at
+   full size (waiting for the first token) and small (next to "Thinking"
+   while reasoning is actively streaming). */
+.chrome-typing-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.chrome-typing-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--chrome-color-text-subtle);
+  animation: chrome-typing-bounce 1.2s infinite ease-in-out;
+}
+.chrome-typing-dots--small span {
+  width: 4px;
+  height: 4px;
+}
+.chrome-typing-dots span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.chrome-typing-dots span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes chrome-typing-bounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
