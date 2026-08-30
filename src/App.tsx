@@ -47,6 +47,8 @@ function App() {
       side={side}
       onSideChange={setSide}
       onSend={assistant.send}
+      onSetApiKey={assistant.setApiKey}
+      onClearApiKey={assistant.clearApiKey}
     />
   );
 

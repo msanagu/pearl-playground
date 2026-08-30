@@ -105,11 +105,27 @@
 .chrome-label {
   font-weight: 600;
   font-size: 13px;
+  flex: 1;
 }
 
-.chrome-label-hint {
-  font-weight: 400;
+.chrome-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--chrome-space-sm);
+}
+
+.chrome-text-button {
+  border: none;
+  background: transparent;
   color: var(--chrome-color-text-subtle);
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0;
+}
+.chrome-text-button:hover {
+  color: var(--chrome-color-text);
+  text-decoration: underline;
 }
 
 .chrome-close-button {
@@ -133,7 +149,7 @@
   top: 16px;
   display: flex;
   align-items: center;
-  gap: var(--chrome-space-xs);
+  gap: 6px;
   border: 1px solid var(--chrome-color-border, #e4e4e7);
   border-radius: var(--chrome-radius-full, 999px);
   padding: 6px 14px 6px 10px;
@@ -225,6 +241,75 @@
   cursor: pointer;
 }
 .chrome-send-button:disabled {
+  background: var(--chrome-color-border);
+  color: var(--chrome-color-text-subtle);
+  cursor: default;
+}
+
+.chrome-gate {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--chrome-space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--chrome-space-md);
+}
+
+.chrome-gate-title {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.chrome-gate-text {
+  margin: 0;
+  color: var(--chrome-color-text-subtle);
+}
+
+.chrome-gate-list {
+  margin: 0;
+  padding-left: 1.1em;
+  color: var(--chrome-color-text-subtle);
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--chrome-space-xs);
+}
+.chrome-gate-list a {
+  color: var(--chrome-color-accent);
+}
+
+.chrome-gate-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--chrome-space-sm);
+  margin-top: var(--chrome-space-sm);
+}
+
+.chrome-gate-input {
+  border: 1px solid var(--chrome-color-border);
+  border-radius: var(--chrome-radius-sm);
+  padding: var(--chrome-space-sm) var(--chrome-space-md);
+  font-family: inherit;
+  font-size: inherit;
+  color: var(--chrome-color-text);
+  background: var(--chrome-color-background);
+}
+.chrome-gate-input::placeholder {
+  color: var(--chrome-color-text-subtle);
+}
+
+.chrome-gate-submit {
+  border: none;
+  border-radius: var(--chrome-radius-sm);
+  padding: var(--chrome-space-sm) var(--chrome-space-md);
+  background: var(--chrome-color-accent);
+  color: var(--chrome-color-accent-contrast);
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+.chrome-gate-submit:disabled {
   background: var(--chrome-color-border);
   color: var(--chrome-color-text-subtle);
   cursor: default;

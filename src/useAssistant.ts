@@ -1,35 +1,51 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import Anthropic from '@anthropic-ai/sdk';
-import { client, hasApiKey } from './anthropicClient';
+import { getStoredApiKey, setStoredApiKey, clearStoredApiKey } from './apiKeyStore';
 import { buildSystemPrompt } from './systemPrompt';
 import type { ChatMessage } from './ChatMessage';
 
 const SYSTEM_PROMPT = buildSystemPrompt();
 
+// Local-dev convenience only: falls back to .env.local so testing doesn't
+// require re-entering a key every reload. The deployed build has no env var
+// at all — visitors there always go through the BYOK gate.
+const DEV_FALLBACK_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY;
+
+/** Extracts the human-readable message from the API's nested error body, falling back to the SDK's own formatted message. */
+function apiErrorMessage(err: Anthropic.APIError): string {
+  const body = err.error as { error?: { message?: string } } | undefined;
+  return body?.error?.message ?? err.message;
+}
+
 export function useAssistant() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [pending, setPending] = useState(false);
+  const [apiKey, setApiKeyState] = useState<string | null>(() => getStoredApiKey() ?? DEV_FALLBACK_KEY ?? null);
+
+  // Client-side only, by design — see anthropicClient's former disclaimer,
+  // now the BYOK gate's own disclaimer text: every visitor supplies their
+  // own key, stored only in their browser, used directly against Anthropic.
+  const client = useMemo(() => (apiKey ? new Anthropic({ apiKey, dangerouslyAllowBrowser: true }) : null), [apiKey]);
+
+  function setApiKey(key: string) {
+    setStoredApiKey(key);
+    setApiKeyState(key);
+  }
+
+  function clearApiKey() {
+    clearStoredApiKey();
+    setApiKeyState(null);
+  }
 
   async function send(text: string) {
+    if (!client) return; // The gate should prevent this — no key, no send.
+
     const userMessage: ChatMessage = { id: crypto.randomUUID(), role: 'user', text };
-    setMessages((prev) => [...prev, userMessage]);
-
-    if (!client) {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: crypto.randomUUID(),
-          role: 'assistant',
-          text: 'No API key set. Add VITE_ANTHROPIC_API_KEY to a .env.local file (git-ignored) and restart the dev server.',
-        },
-      ]);
-      return;
-    }
-
     const history: Anthropic.MessageParam[] = [...messages, userMessage].map((m) => ({
       role: m.role,
       content: m.text,
     }));
+    setMessages((prev) => [...prev, userMessage]);
 
     const assistantId = crypto.randomUUID();
     setMessages((prev) => [...prev, { id: assistantId, role: 'assistant', text: '' }]);
@@ -50,12 +66,12 @@ export function useAssistant() {
         }
       }
     } catch (err) {
-      const message = err instanceof Anthropic.APIError ? err.message : 'Request failed.';
+      const message = err instanceof Anthropic.APIError ? apiErrorMessage(err) : 'Request failed.';
       setMessages((prev) => prev.map((m) => (m.id === assistantId ? { ...m, text: `Error: ${message}` } : m)));
     } finally {
       setPending(false);
     }
   }
 
-  return { messages, pending, send, hasApiKey };
+  return { messages, pending, send, hasApiKey: Boolean(apiKey), setApiKey, clearApiKey };
 }

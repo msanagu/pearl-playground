@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { TbLayoutSidebarLeftCollapse, TbLayoutSidebarRightCollapse, TbArrowUp } from 'react-icons/tb';
 import type { ChatMessage } from './ChatMessage';
+import { ApiKeyGate } from './ApiKeyGate';
 import './chrome.css';
 
 export type PanelSide = 'left' | 'right';
@@ -12,6 +13,8 @@ interface ChatPanelProps {
   side: PanelSide;
   onSideChange: (side: PanelSide) => void;
   onSend: (text: string) => void;
+  onSetApiKey: (key: string) => void;
+  onClearApiKey: () => void;
 }
 
 const DEFAULT_WIDTH = 360;
@@ -30,8 +33,12 @@ const MAX_WIDTH = 600;
  * so the canvas's `flex: 1` fills the freed width automatically. Which edge
  * it docks to is owned by the parent (`side`/`onSideChange`) since that
  * decides sibling order in the layout, not just this component's own styles.
+ *
+ * Without an API key, the message list/composer are replaced by ApiKeyGate —
+ * the rest of the app (canvas) works regardless; only the assistant itself
+ * is gated.
  */
-export function ChatPanel({ messages, pending, hasApiKey, side, onSideChange, onSend }: ChatPanelProps) {
+export function ChatPanel({ messages, pending, hasApiKey, side, onSideChange, onSend, onSetApiKey, onClearApiKey }: ChatPanelProps) {
   const [open, setOpen] = useState(true);
   const [width, setWidth] = useState(DEFAULT_WIDTH);
   const draggingRef = useRef(false);
@@ -95,22 +102,34 @@ export function ChatPanel({ messages, pending, hasApiKey, side, onSideChange, on
           </button>
         </div>
         <div className="chrome-label">
-          Pearl Assistant{!hasApiKey && <span className="chrome-label-hint"> · no API key set</span>}
+          Pearl Assistant
         </div>
-        <button type="button" className="chrome-close-button" onClick={() => setOpen(false)} aria-label="Close assistant panel">
-          ×
-        </button>
+        <div className="chrome-header-actions">
+          {hasApiKey && (
+            <button type="button" className="chrome-text-button" onClick={onClearApiKey}>
+              Remove key
+            </button>
+          )}
+          <button type="button" className="chrome-close-button" onClick={() => setOpen(false)} aria-label="Close assistant panel">
+            ×
+          </button>
+        </div>
       </div>
 
-      <div className="chrome-messages" ref={messagesRef}>
-        {messages.map((m) => (
-          <div className={`chrome-message chrome-message--${m.role}`} key={m.id}>
-            {m.text || (pending && m.role === 'assistant' ? '…' : '')}
+      {hasApiKey ? (
+        <>
+          <div className="chrome-messages" ref={messagesRef}>
+            {messages.map((m) => (
+              <div className={`chrome-message chrome-message--${m.role}`} key={m.id}>
+                {m.text || (pending && m.role === 'assistant' ? '…' : '')}
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-
-      <PanelInput onSend={onSend} disabled={pending} />
+          <PanelInput onSend={onSend} disabled={pending} />
+        </>
+      ) : (
+        <ApiKeyGate onSubmit={onSetApiKey} />
+      )}
     </div>
   );
 }
