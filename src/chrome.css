@@ -60,13 +60,17 @@
 }
 
 .chrome-side-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid #999;
   border-radius: 4px;
   background: #e0e0e0;
   width: 22px;
   height: 22px;
-  line-height: 1;
+  padding: 0;
   cursor: pointer;
+  color: #333;
 }
 
 .chrome-side-button--active {

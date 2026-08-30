@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { TbLayoutSidebarLeftCollapse, TbLayoutSidebarRightCollapse } from 'react-icons/tb';
 import type { ChatMessage } from './ChatMessage';
 import './chrome.css';
 
@@ -79,7 +80,7 @@ export function ChatPanel({ messages, pending, hasApiKey, side, onSideChange, on
             aria-label="Dock to left"
             aria-pressed={side === 'left'}
           >
-            ⇤
+            <TbLayoutSidebarLeftCollapse size={16} />
           </button>
           <button
             type="button"
@@ -88,7 +89,7 @@ export function ChatPanel({ messages, pending, hasApiKey, side, onSideChange, on
             aria-label="Dock to right"
             aria-pressed={side === 'right'}
           >
-            ⇥
+            <TbLayoutSidebarRightCollapse size={16} />
           </button>
         </div>
         <div className="chrome-label">
