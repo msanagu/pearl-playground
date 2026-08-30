@@ -1,0 +1,112 @@
+/*
+ * Styles for this app's own chrome (the assistant panel) — deliberately
+ * plain, system-default-ish, and NOT using any @msanagu/pearl token or
+ * component. Kept in its own file, scoped by a "chrome-" prefix, so it's
+ * obviously local to this project rather than part of Pearl's theme system.
+ * Placeholder look — not a design decision to defend long-term.
+ */
+
+.chrome-panel {
+  flex-shrink: 0;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  box-sizing: border-box;
+  background: #f0f0f0;
+  color: #1a1a1a;
+  font-family: system-ui, sans-serif;
+  font-size: 14px;
+  border-left: 1px solid #ccc;
+  position: relative;
+}
+
+.chrome-resize-handle {
+  position: absolute;
+  left: -4px;
+  top: 0;
+  width: 8px;
+  height: 100%;
+  cursor: col-resize;
+}
+.chrome-resize-handle:hover {
+  background: #ccc;
+}
+
+.chrome-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chrome-label {
+  color: #666;
+  font-size: 12px;
+}
+
+.chrome-close-button {
+  border: 1px solid #999;
+  border-radius: 4px;
+  background: #e0e0e0;
+  width: 22px;
+  height: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.chrome-reopen-button {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  border: 1px solid #999;
+  border-radius: 4px;
+  padding: 6px 10px;
+  background: #e0e0e0;
+  font-family: system-ui, sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.chrome-messages {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chrome-message {
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 8px;
+}
+
+.chrome-input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.chrome-input {
+  flex: 1;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.chrome-button {
+  border: 1px solid #999;
+  border-radius: 4px;
+  padding: 8px 14px;
+  background: #e0e0e0;
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+}

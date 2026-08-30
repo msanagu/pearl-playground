@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { Stack, Row, Text, Button, Card } from '@msanagu/pearl';
-import { ChatInput, type ChatMessage } from './ChatInput';
+import { Stack, Row, Text, Button, Card, color } from '@msanagu/pearl';
+import { ChatPanel } from './ChatPanel';
+import type { ChatMessage } from './ChatMessage';
 
 /**
- * Smoke test only — proves `@msanagu/pearl` renders correctly from a real
- * npm install (tarball, not a symlink) before this becomes a vibe-coding
- * playground. Replace once that phase starts.
+ * Two regions, deliberately separated: the canvas (left, generated content
+ * lives here) and the assistant panel (right, fixed app chrome — see
+ * ChatPanel). Nothing in canvas should ever be mistaken for the tool
+ * operating on it, and vice versa.
  */
 function App() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -15,47 +17,32 @@ function App() {
   }
 
   return (
-    <Stack gap="xl" style={{ padding: '2rem', maxWidth: 640, margin: '0 auto' }}>
-      <Text typeScale="displaySm" as="h1">
-        Pearl Playground
-      </Text>
-      <Text typeScale="bodyLg" prominence="subtle">
-        Installed from a packed tarball, same as a real npm consumer — this page proves the components render correctly before anything gets built on top.
-      </Text>
-      <Card padding="lg">
-        <Stack gap="md">
-          <Text typeScale="headingSm" as="h2">
-            Card
+    <Row style={{ minHeight: '100vh', alignItems: 'stretch' }}>
+      <div style={{ flex: 1, overflowY: 'auto', background: color.background }}>
+        <Stack gap="xl" style={{ padding: '2rem', maxWidth: 640, margin: '0 auto' }}>
+          <Text typeScale="displaySm" as="h1">
+            Pearl Playground
           </Text>
-          <Text typeScale="bodyMd">A component rendered from the installed package, not the source repo.</Text>
-          <Row gap="sm">
-            <Button variant="primary">Primary</Button>
-            <Button variant="secondary">Secondary</Button>
-          </Row>
-        </Stack>
-      </Card>
-
-      <Card padding="lg">
-        <Stack gap="md">
-          <Text typeScale="headingSm" as="h2">
-            Chat input
+          <Text typeScale="bodyLg" prominence="subtle">
+            Installed from a packed tarball, same as a real npm consumer — this page proves the components render correctly before anything gets built on top.
           </Text>
-          <Text typeScale="bodyMd" prominence="subtle">
-            No model wired up yet — sending just appends to this local list.
-          </Text>
-          <ChatInput onSend={handleSend} />
-          {messages.length > 0 && (
-            <Stack gap="xs" as="ul" style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-              {messages.map((m) => (
-                <Text as="li" typeScale="bodySm" key={m.id}>
-                  {m.text}
-                </Text>
-              ))}
+          <Card padding="lg">
+            <Stack gap="md">
+              <Text typeScale="headingSm" as="h2">
+                Card
+              </Text>
+              <Text typeScale="bodyMd">A component rendered from the installed package, not the source repo.</Text>
+              <Row gap="sm">
+                <Button variant="primary">Primary</Button>
+                <Button variant="secondary">Secondary</Button>
+              </Row>
             </Stack>
-          )}
+          </Card>
         </Stack>
-      </Card>
-    </Stack>
+      </div>
+
+      <ChatPanel messages={messages} onSend={handleSend} />
+    </Row>
   );
 }
 
