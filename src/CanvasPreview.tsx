@@ -1,5 +1,6 @@
 import { LiveProvider, LivePreview, LiveError } from 'react-live';
 import * as React from 'react';
+import { PiCheck, PiX, PiCaretDown, PiCaretRight, PiArrowRight, PiWarningCircle, PiInfo, PiStar, PiHeart, PiUser } from 'react-icons/pi';
 import { Button, Text, Stack, Row, Card, Input, Field, Icon, Alert, Tag, Link, color, radius, space, controlHeight, fontFamily, fontWeight } from '@msanagu/pearl';
 import './canvasPreview.css';
 
@@ -7,7 +8,42 @@ import './canvasPreview.css';
 // systemPrompt.ts's "Generation format" instructions exactly. If a name is
 // added there, it must be added here too, or the live render throws
 // "X is not defined" instead of working.
-const SCOPE = { React, Button, Text, Stack, Row, Card, Input, Field, Icon, Alert, Tag, Link, color, radius, space, controlHeight, fontFamily, fontWeight };
+//
+// Icon's real prop is `icon={SomeIconComponent}` (react-icons), not a name
+// string — since generated code can't import anything, it can only use
+// Icon meaningfully if we hand it real icon components to reference. This
+// curated set is what the system prompt promises exists; adding an icon
+// here means adding it there too, and vice versa.
+const SCOPE = {
+  React,
+  Button,
+  Text,
+  Stack,
+  Row,
+  Card,
+  Input,
+  Field,
+  Icon,
+  Alert,
+  Tag,
+  Link,
+  color,
+  radius,
+  space,
+  controlHeight,
+  fontFamily,
+  fontWeight,
+  PiCheck,
+  PiX,
+  PiCaretDown,
+  PiCaretRight,
+  PiArrowRight,
+  PiWarningCircle,
+  PiInfo,
+  PiStar,
+  PiHeart,
+  PiUser,
+};
 
 interface CanvasPreviewProps {
   code: string;
