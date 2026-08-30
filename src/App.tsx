@@ -24,15 +24,16 @@ import './appBar.css';
  */
 function App() {
   const [themeName, setThemeName] = useState<ThemeName>('pearl');
+  const [mode, setMode] = useState<ThemeMode>('light');
+  const assistant = useAssistant(themeName);
+  const [side, setSide] = useState<PanelSide>('left');
+  const [showCode, setShowCode] = useState(false);
+  const [showAlert, setShowAlert] = useState(true);
   // The select starts on its own "Select theme" placeholder rather than
   // showing "Pearl" pre-picked — themeName still defaults to 'pearl'
   // underneath so nothing renders unstyled before a real choice is made;
   // this only tracks whether the user has actually interacted with it yet.
   const [themeChosen, setThemeChosen] = useState(false);
-  const [mode, setMode] = useState<ThemeMode>('light');
-  const assistant = useAssistant(themeName);
-  const [side, setSide] = useState<PanelSide>('left');
-  const [showCode, setShowCode] = useState(false);
 
   const lastAssistantMessage = [...assistant.messages].reverse().find((m) => m.role === 'assistant');
   const generatedCode = useMemo(() => (lastAssistantMessage ? extractCodeBlock(lastAssistantMessage.text) : null), [lastAssistantMessage]);
@@ -44,7 +45,11 @@ function App() {
           <CanvasPreview code={generatedCode} showCode={showCode} />
         ) : (
           <>
-            <Alert variant="info">Ask the assistant to generate a component — it'll render here, live.</Alert>
+            {showAlert && (
+              <Alert variant="info" onDismiss={() => setShowAlert(false)}>
+                Ask the assistant to generate a component — it'll render here, live.
+              </Alert>
+            )}
             <Card padding="lg">
               <Stack gap="md">
                 <Text typeScale="headingSm" as="h2">

@@ -29,6 +29,7 @@
 
   flex-shrink: 0;
   height: 100%;
+  position: relative; /* containing block for .chrome-resize-handle (position: absolute) */
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
@@ -50,18 +51,34 @@
 .chrome-resize-handle {
   position: absolute;
   top: 0;
-  width: 8px;
+  width: 10px;
   height: 100%;
   cursor: col-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .chrome-panel--right .chrome-resize-handle {
-  left: -4px;
+  left: -5px;
 }
 .chrome-panel--left .chrome-resize-handle {
-  right: -4px;
+  right: -5px;
 }
-.chrome-resize-handle:hover {
+/* Always-visible grip line — the hit area is 10px, but a resize handle with
+   zero visible presence at rest reads as "not draggable" until you happen
+   to hover it. This is the affordance; :hover/:active just intensify it. */
+.chrome-resize-handle::after {
+  content: '';
+  width: 2px;
+  height: 32px;
+  border-radius: 999px;
   background: var(--chrome-color-border);
+}
+.chrome-resize-handle:hover::after {
+  background: var(--chrome-color-text-subtle);
+}
+.chrome-resize-handle:active::after {
+  background: var(--chrome-color-accent);
 }
 
 .chrome-header {

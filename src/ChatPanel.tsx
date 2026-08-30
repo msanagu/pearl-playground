@@ -80,7 +80,13 @@ export function ChatPanel({ messages, pending, hasApiKey, side, onSideChange, on
 
   return (
     <div className={`chrome-panel chrome-panel--${side}`} style={{ width }}>
-      <div className="chrome-resize-handle" onMouseDown={() => (draggingRef.current = true)} />
+      <div
+        className="chrome-resize-handle"
+        onMouseDown={(e) => {
+          e.preventDefault(); // otherwise the drag also starts a native text selection
+          draggingRef.current = true;
+        }}
+      />
 
       <div className="chrome-header">
         <div className="chrome-side-toggle" role="group" aria-label="Dock assistant panel to">
