@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { Stack, Row, Text, Button, Card, color, fontFamily } from '@msanagu/pearl';
+import { TbSun, TbMoon } from 'react-icons/tb';
+import { Stack, Row, Text, Button, Card, Alert, color, fontFamily } from '@msanagu/pearl';
 import { ChatPanel, type PanelSide } from './ChatPanel';
 import { useAssistant } from './useAssistant';
 import { CanvasPreview } from './CanvasPreview';
@@ -23,6 +24,11 @@ import './appBar.css';
  */
 function App() {
   const [themeName, setThemeName] = useState<ThemeName>('pearl');
+  // The select starts on its own "Select theme" placeholder rather than
+  // showing "Pearl" pre-picked — themeName still defaults to 'pearl'
+  // underneath so nothing renders unstyled before a real choice is made;
+  // this only tracks whether the user has actually interacted with it yet.
+  const [themeChosen, setThemeChosen] = useState(false);
   const [mode, setMode] = useState<ThemeMode>('light');
   const assistant = useAssistant(themeName);
   const [side, setSide] = useState<PanelSide>('left');
@@ -38,9 +44,7 @@ function App() {
           <CanvasPreview code={generatedCode} showCode={showCode} />
         ) : (
           <>
-            <Text typeScale="bodyLg" prominence="subtle">
-              Ask the assistant to generate a component — it'll render here, live.
-            </Text>
+            <Alert variant="info">Ask the assistant to generate a component — it'll render here, live.</Alert>
             <Card padding="lg">
               <Stack gap="md">
                 <Text typeScale="headingSm" as="h2">
@@ -87,15 +91,26 @@ function App() {
               </button>
             </div>
           )}
-          <div className="app-bar-tabs" role="group" aria-label="Mode">
-            <button type="button" className={`app-bar-tab${mode === 'light' ? ' app-bar-tab--active' : ''}`} onClick={() => setMode('light')}>
-              Light
-            </button>
-            <button type="button" className={`app-bar-tab${mode === 'dark' ? ' app-bar-tab--active' : ''}`} onClick={() => setMode('dark')}>
-              Dark
-            </button>
-          </div>
-          <select className="app-bar-theme-select" value={themeName} onChange={(e) => setThemeName(e.target.value as ThemeName)} aria-label="Canvas theme">
+          <button
+            type="button"
+            className="app-bar-icon-button"
+            onClick={() => setMode(mode === 'light' ? 'dark' : 'light')}
+            aria-label={mode === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+          >
+            {mode === 'light' ? <TbMoon size={16} /> : <TbSun size={16} />}
+          </button>
+          <select
+            className="app-bar-theme-select"
+            value={themeChosen ? themeName : ''}
+            onChange={(e) => {
+              setThemeName(e.target.value as ThemeName);
+              setThemeChosen(true);
+            }}
+            aria-label="Canvas theme"
+          >
+            <option value="" disabled>
+              Select theme
+            </option>
             {THEME_NAMES.map((name) => (
               <option key={name} value={name}>
                 {THEMES[name].label}
