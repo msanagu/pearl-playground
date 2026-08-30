@@ -1,0 +1,59 @@
+/* Canvas-side chrome for the live-rendered preview — separate from
+   chrome.css (assistant panel only) since this belongs to the canvas/app
+   itself. Deliberately plain, not Pearl-themed, so the toolbar/tabs read as
+   app UI regardless of which Pearl theme the preview inside is rendering. */
+
+.canvas-preview-toolbar {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+}
+
+.canvas-preview-tab {
+  border: 1px solid #d4d4d8;
+  background: #ffffff;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-family: system-ui, sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+  color: #52525b;
+}
+
+.canvas-preview-tab--active {
+  background: #18181b;
+  border-color: #18181b;
+  color: #ffffff;
+}
+
+.canvas-preview-stage {
+  border: 1px solid #d4d4d8;
+  border-radius: 10px;
+  padding: 24px;
+  background: #ffffff;
+}
+
+.canvas-preview-code {
+  border: 1px solid #d4d4d8;
+  border-radius: 10px;
+  padding: 16px;
+  background: #18181b;
+  color: #e4e4e7;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.canvas-preview-error {
+  display: block;
+  white-space: pre-wrap;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+}

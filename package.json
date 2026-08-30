@@ -15,7 +15,10 @@
     "@msanagu/pearl": "file:vendor/msanagu-pearl-0.1.0.tgz",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "react-icons": "^5.7.0"
+    "react-icons": "^5.7.0",
+    "react-live": "^4.1.8",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
     "@types/node": "^24.13.3",

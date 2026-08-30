@@ -3,8 +3,7 @@ import Anthropic, { APIError } from '@anthropic-ai/sdk';
 import { getStoredApiKey, setStoredApiKey, clearStoredApiKey } from './apiKeyStore';
 import { buildSystemPrompt } from './systemPrompt';
 import type { ChatMessage } from './ChatMessage';
-
-const SYSTEM_PROMPT = buildSystemPrompt();
+import type { ThemeName } from './themeRegistry';
 
 // Local-dev convenience only: falls back to .env.local so testing doesn't
 // require re-entering a key every reload. The deployed build has no env var
@@ -17,10 +16,14 @@ function apiErrorMessage(err: APIError): string {
   return body?.error?.message ?? err.message;
 }
 
-export function useAssistant() {
+export function useAssistant(activeTheme: ThemeName) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [pending, setPending] = useState(false);
   const [apiKey, setApiKeyState] = useState<string | null>(() => getStoredApiKey() ?? DEV_FALLBACK_KEY ?? null);
+
+  // Rebuilt whenever the canvas's active theme changes — see systemPrompt.ts
+  // for why (it filters the manifest to just that theme).
+  const systemPrompt = useMemo(() => buildSystemPrompt(activeTheme), [activeTheme]);
 
   // Client-side only, by design — see anthropicClient's former disclaimer,
   // now the BYOK gate's own disclaimer text: every visitor supplies their
@@ -55,7 +58,7 @@ export function useAssistant() {
       const stream = client.messages.stream({
         model: 'claude-opus-5',
         max_tokens: 4096,
-        system: SYSTEM_PROMPT,
+        system: systemPrompt,
         messages: history,
       });
 

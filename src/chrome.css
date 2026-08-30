@@ -193,6 +193,94 @@
   padding: 0 2px;
 }
 
+/* Markdown output (react-markdown) inside an assistant turn — everything
+   below is scoped to .chrome-message--assistant so it never touches the
+   plain-text user bubble. */
+.chrome-message--assistant :first-child {
+  margin-top: 0;
+}
+.chrome-message--assistant :last-child {
+  margin-bottom: 0;
+}
+.chrome-message--assistant p,
+.chrome-message--assistant ul,
+.chrome-message--assistant ol,
+.chrome-message--assistant table,
+.chrome-message--assistant pre,
+.chrome-message--assistant blockquote {
+  margin: var(--chrome-space-md) 0;
+}
+.chrome-message--assistant h1,
+.chrome-message--assistant h2,
+.chrome-message--assistant h3 {
+  margin: var(--chrome-space-lg) 0 var(--chrome-space-sm);
+  font-weight: 600;
+  line-height: 1.3;
+}
+.chrome-message--assistant h1 {
+  font-size: 16px;
+}
+.chrome-message--assistant h2 {
+  font-size: 14px;
+}
+.chrome-message--assistant h3 {
+  font-size: 13px;
+  color: var(--chrome-color-text-subtle);
+}
+.chrome-message--assistant ul,
+.chrome-message--assistant ol {
+  padding-left: 1.3em;
+}
+.chrome-message--assistant li {
+  margin: var(--chrome-space-xs) 0;
+}
+.chrome-message--assistant a {
+  color: var(--chrome-color-accent);
+}
+.chrome-message--assistant strong {
+  font-weight: 600;
+}
+.chrome-message--assistant code {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 12px;
+  background: var(--chrome-color-surface);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+.chrome-message--assistant pre {
+  background: var(--chrome-color-surface);
+  border: 1px solid var(--chrome-color-border);
+  border-radius: var(--chrome-radius-sm);
+  padding: var(--chrome-space-md);
+  overflow-x: auto;
+}
+.chrome-message--assistant pre code {
+  background: none;
+  padding: 0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.chrome-message--assistant table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 13px;
+}
+.chrome-message--assistant th,
+.chrome-message--assistant td {
+  border: 1px solid var(--chrome-color-border);
+  padding: var(--chrome-space-xs) var(--chrome-space-sm);
+  text-align: left;
+}
+.chrome-message--assistant th {
+  background: var(--chrome-color-surface);
+  font-weight: 600;
+}
+.chrome-message--assistant blockquote {
+  border-left: 2px solid var(--chrome-color-border);
+  padding-left: var(--chrome-space-md);
+  color: var(--chrome-color-text-subtle);
+}
+
 .chrome-composer {
   margin: 0 var(--chrome-space-lg) var(--chrome-space-lg);
   border: 1px solid var(--chrome-color-border);

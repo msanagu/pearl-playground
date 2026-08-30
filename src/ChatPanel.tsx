@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { TbLayoutSidebarLeftCollapse, TbLayoutSidebarRightCollapse, TbArrowUp } from 'react-icons/tb';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import type { ChatMessage } from './ChatMessage';
 import { ApiKeyGate } from './ApiKeyGate';
 import './chrome.css';
@@ -121,7 +123,15 @@ export function ChatPanel({ messages, pending, hasApiKey, side, onSideChange, on
           <div className="chrome-messages" ref={messagesRef}>
             {messages.map((m) => (
               <div className={`chrome-message chrome-message--${m.role}`} key={m.id}>
-                {m.text || (pending && m.role === 'assistant' ? '…' : '')}
+                {m.role === 'assistant' ? (
+                  m.text ? (
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.text}</ReactMarkdown>
+                  ) : (
+                    pending && '…'
+                  )
+                ) : (
+                  m.text
+                )}
               </div>
             ))}
           </div>

@@ -1,16 +1,12 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { pearlLightThemeClass, pearlExtensionClass, color, fontFamily } from '@msanagu/pearl';
 import '@msanagu/pearl/index.css';
 import App from './App.tsx';
 
+// No fixed theme class here — App.tsx owns theme state (the switcher needs
+// to change it at runtime), so the themed wrapper lives there instead.
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <div
-      className={`${pearlLightThemeClass} ${pearlExtensionClass}`}
-      style={{ color: color.text, background: color.background, fontFamily: fontFamily.body, minHeight: '100vh' }}
-    >
-      <App />
-    </div>
+    <App />
   </StrictMode>,
 );

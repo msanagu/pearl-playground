@@ -1,0 +1,38 @@
+import {
+  pearlLightThemeClass,
+  pearlDarkThemeClass,
+  pearlExtensionClass,
+  tahitianLightThemeClass,
+  tahitianDarkThemeClass,
+  tahitianExtensionClass,
+  freshwaterLightThemeClass,
+  freshwaterDarkThemeClass,
+  southSeaLightThemeClass,
+  southSeaDarkThemeClass,
+} from '@msanagu/pearl';
+
+export type ThemeName = 'pearl' | 'tahitian' | 'freshwater' | 'south-sea';
+export type ThemeMode = 'light' | 'dark';
+
+interface ThemeEntry {
+  label: string;
+  light: string;
+  dark: string;
+  /** Only Pearl and Tahitian have a luster/overtone extension class — the other two don't export one. */
+  extension?: string;
+}
+
+export const THEMES: Record<ThemeName, ThemeEntry> = {
+  pearl: { label: 'Pearl', light: pearlLightThemeClass, dark: pearlDarkThemeClass, extension: pearlExtensionClass },
+  tahitian: { label: 'Tahitian', light: tahitianLightThemeClass, dark: tahitianDarkThemeClass, extension: tahitianExtensionClass },
+  freshwater: { label: 'Freshwater', light: freshwaterLightThemeClass, dark: freshwaterDarkThemeClass },
+  'south-sea': { label: 'South Sea', light: southSeaLightThemeClass, dark: southSeaDarkThemeClass },
+};
+
+export const THEME_NAMES = Object.keys(THEMES) as ThemeName[];
+
+export function themeClassName(name: ThemeName, mode: ThemeMode): string {
+  const entry = THEMES[name];
+  const base = mode === 'dark' ? entry.dark : entry.light;
+  return entry.extension ? `${base} ${entry.extension}` : base;
+}

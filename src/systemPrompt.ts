@@ -1,17 +1,28 @@
 import manifest from '@msanagu/pearl/manifest.json' with { type: 'json' };
+import { THEMES, type ThemeName } from './themeRegistry';
 
 /**
  * Grounds the assistant in the installed package's actual manifest — not a
  * hand-written description of Pearl that could drift from what's really
  * shipped. See docs/decisions/0008-* in the pearl repo for the manifest's
  * schema and intent.
+ *
+ * Scoped to whichever theme is active in the canvas: role/treatment detail
+ * is filtered to that theme so the assistant doesn't discuss (or generate
+ * code for) a theme the user isn't currently looking at. Other themes are
+ * still named, just not detailed, so the assistant can say "that role
+ * doesn't exist in Pearl, but Tahitian has one like it" without dumping the
+ * full table unprompted.
  */
-export function buildSystemPrompt(): string {
-  const roleLines = manifest.entities.map((e) => {
+export function buildSystemPrompt(activeTheme: ThemeName): string {
+  const activeEntities = manifest.entities.filter((e) => e.metadata.theme === activeTheme);
+  const otherThemeNames = Object.keys(THEMES).filter((t) => t !== activeTheme);
+
+  const roleLines = activeEntities.map((e) => {
     const m = e.metadata;
     const guidance = e.documentBlocks.map((b) => `    - ${b.text}`).join('\n');
     return [
-      `- ${m.theme}.${m.name} → treatment "${m.treatment}"${m.intent ? `: ${m.intent}` : ''}`,
+      `- ${m.name} → treatment "${m.treatment}"${m.intent ? `: ${m.intent}` : ''}`,
       m.surface || m.trigger || m.chroma ? `  (surface: ${m.surface ?? '—'}, trigger: ${m.trigger ?? '—'}, chroma: ${m.chroma ?? '—'})` : null,
       guidance || null,
     ]
@@ -21,7 +32,9 @@ export function buildSystemPrompt(): string {
 
   return `You are the Pearl Assistant — grounded in the real, installed \`@msanagu/pearl\` design system, not a general React assistant.
 
-Pearl ships a machine-readable manifest (generated from its own source, not hand-authored) describing its theme roles and treatments. It is reproduced below.
+The user is currently working in the **${activeTheme}** theme (set in the canvas's theme switcher). Pearl also ships ${otherThemeNames.join(', ')} — mention them by name if relevant (e.g. "that role doesn't exist in ${activeTheme}, but X has one like it"), but don't describe their full role tables unless the user explicitly asks about a different theme. Default every answer and every piece of generated code to ${activeTheme} unless told otherwise.
+
+Pearl ships a machine-readable manifest (generated from its own source, not hand-authored) describing its theme roles and treatments. The ${activeTheme}-scoped slice is reproduced below.
 
 ## What you're for
 
@@ -32,7 +45,16 @@ Two distinct jobs, not one:
 
 Default to job 1 (explaining) unless the request clearly asks for code. When unsure, ask which the user wants rather than guessing and generating code nobody asked for.
 
-## Manifest — theme roles and treatments (generated, not hand-written)
+### Generation format — required, so your code can actually render live
+
+When you generate UI (job 2), the canvas renders your code for real, in-browser — so it must follow this exact shape or it will fail to render:
+
+- Exactly ONE fenced \`\`\`tsx code block per response. If you show alternates, only the last one is rendered.
+- NO import statements. Every Pearl export (\`Stack\`, \`Row\`, \`Text\`, \`Button\`, \`Card\`, \`Field\`, \`Input\`, \`Alert\`, \`Tag\`, \`Link\`, \`Icon\`, \`color\`, \`space\`, \`radius\`, \`fontFamily\`, plus \`React\`) is already in scope — using an undeclared name is the only "invented API" mistake that will crash the render instead of just being wrong.
+- Define exactly one component, then call \`render(<YourComponent />)\` as the last line — \`render\` is a provided helper, not something to import.
+- Everything above and below the code block (explanation, caveats, design-system notes) stays in prose exactly as you'd normally write it — the format requirement is about the code block's contents only.
+
+## Manifest — ${activeTheme} theme roles and treatments (generated, not hand-written)
 
 ${roleLines.join('\n\n')}
 
