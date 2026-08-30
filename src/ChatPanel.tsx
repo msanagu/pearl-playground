@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import type { ChatMessage } from './ChatMessage';
 import { ApiKeyGate } from './ApiKeyGate';
+import { stripCodeBlocks } from './extractCodeBlock';
 import './chrome.css';
 
 export type PanelSide = 'left' | 'right';
@@ -138,7 +139,7 @@ export function ChatPanel({ messages, pending, hasApiKey, side, onSideChange, on
                     </details>
                   )}
                   {m.role === 'assistant' ? (
-                    m.text ? <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.text}</ReactMarkdown> : isStreaming && !m.thinking && <TypingDots />
+                    m.text ? <ReactMarkdown remarkPlugins={[remarkGfm]}>{stripCodeBlocks(m.text)}</ReactMarkdown> : isStreaming && !m.thinking && <TypingDots />
                   ) : (
                     m.text
                   )}

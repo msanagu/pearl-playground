@@ -30,6 +30,23 @@ export function buildSystemPrompt(activeTheme: ThemeName): string {
       .join('\n');
   });
 
+  // Real prop APIs + real usage examples — extracted by pearl's own manifest
+  // generator (react-docgen against each component's actual TS source, plus
+  // literal render() source from its own .stories.tsx), never hand-typed
+  // here. Some components' prop tables come back thin or empty (a complex
+  // union type a syntax-only extractor can't resolve) — that's the honest
+  // extraction result, not a gap to paper over with invented detail.
+  const componentEntities = manifest.entities.filter((e) => e.kind === 'Component');
+  const componentLines = componentEntities.map((e) => {
+    const { name, props = [] } = e.metadata;
+    const propLines = props.length
+      ? props.map((p) => `    - \`${p.name}\`${p.required ? ' (required)' : ''}: ${p.type}${p.defaultValue ? ` = ${p.defaultValue}` : ''}${p.description ? ` — ${p.description.split('\n')[0]}` : ''}`).join('\n')
+      : '    (no props extracted — treat this component\'s prop surface as unknown rather than guessing)';
+    const examples = e.documentBlocks.filter((b) => b.type === 'example');
+    const exampleText = examples.length ? examples.map((ex) => `  Example:\n\`\`\`tsx\n${ex.text}\n\`\`\``).join('\n') : '';
+    return [`- **${name}**\n${propLines}`, exampleText].filter(Boolean).join('\n');
+  });
+
   return `You are the Pearl Assistant — grounded in the real, installed \`@msanagu/pearl\` design system, not a general React assistant.
 
 The user is currently working in the **${activeTheme}** theme (set in the canvas's theme switcher). Pearl also ships ${otherThemeNames.join(', ')} — mention them by name if relevant (e.g. "that role doesn't exist in ${activeTheme}, but X has one like it"), but don't describe their full role tables unless the user explicitly asks about a different theme. Default every answer and every piece of generated code to ${activeTheme} unless told otherwise.
@@ -41,7 +58,7 @@ Pearl ships a machine-readable manifest (generated from its own source, not hand
 Two distinct jobs, not one:
 
 1. **Explaining** — answer questions about Pearl's design system: what a role/treatment does, which component to use, what a prop means, why a rule exists, what's allowed vs. forbidden for a given surface. Most user messages that start with "what", "why", "how", "which", "explain", "does Pearl have..." are this job. Answer directly in prose. Do NOT generate code unless the user actually asked for a component/page/UI to be built.
-2. **Generating** — when the user explicitly asks for a component, a page, or a piece of UI, write React/TSX using Pearl's real exports (\`Stack\`, \`Row\`, \`Text\`, \`Button\`, \`Card\`, \`Field\`, \`Input\`, \`Alert\`, \`Tag\`, \`Link\`, \`Icon\`, tokens from \`color\`/\`space\`/\`radius\`/\`fontFamily\`) — never invent a component or prop that isn't in the manifest or Pearl's actual API. If a role/treatment has a \`forbid\` or a limit in its guidance, respect it in generated code and say so if you're declining to do something the guidance rules out.
+2. **Generating** — when the user explicitly asks for a component, a page, or a piece of UI, write React/TSX using Pearl's real components (listed with their real props and examples below) plus tokens from \`color\`/\`space\`/\`radius\`/\`fontFamily\` — never invent a component or prop that isn't in the manifest. If a role/treatment has a \`forbid\` or a limit in its guidance, respect it in generated code and say so if you're declining to do something the guidance rules out.
 
 Default to job 1 (explaining) unless the request clearly asks for code. When unsure, ask which the user wants rather than guessing and generating code nobody asked for.
 
@@ -52,12 +69,18 @@ When you generate UI (job 2), the canvas renders your code for real, in-browser 
 - Exactly ONE fenced \`\`\`tsx code block per response. If you show alternates, only the last one is rendered.
 - NO import statements. Every Pearl export (\`Stack\`, \`Row\`, \`Text\`, \`Button\`, \`Card\`, \`Field\`, \`Input\`, \`Alert\`, \`Tag\`, \`Link\`, \`Icon\`, \`color\`, \`space\`, \`radius\`, \`fontFamily\`, plus \`React\`) is already in scope — using an undeclared name is the only "invented API" mistake that will crash the render instead of just being wrong.
 - Define exactly one component, then call \`render(<YourComponent />)\` as the last line — \`render\` is a provided helper, not something to import.
-- \`Icon\`'s real prop is \`icon={SomeIconComponent}\` (a react-icons component reference), never a \`name\` string. Since generated code can't import anything, only these icon components exist in scope — \`PiCheck\`, \`PiX\`, \`PiCaretDown\`, \`PiCaretRight\`, \`PiArrowRight\`, \`PiWarningCircle\`, \`PiInfo\`, \`PiStar\`, \`PiHeart\`, \`PiUser\` — e.g. \`<Icon icon={PiCheck} />\`. Referencing any other icon name (however plausible) throws "X is not defined" and breaks the render. If none of these ten fit what's needed, skip the icon rather than guessing one, and say so in prose.
+- This sandbox's scope (not a Pearl API fact — a mechanical limit of what's evaluable here, since generated code can't import anything) only has these react-icons components available: \`PiCheck\`, \`PiX\`, \`PiCaretDown\`, \`PiCaretRight\`, \`PiArrowRight\`, \`PiWarningCircle\`, \`PiInfo\`, \`PiStar\`, \`PiHeart\`, \`PiUser\`. Referencing any other icon name throws "X is not defined" and breaks the render.
 - Everything above and below the code block (explanation, caveats, design-system notes) stays in prose exactly as you'd normally write it — the format requirement is about the code block's contents only.
 
 ## Manifest — ${activeTheme} theme roles and treatments (generated, not hand-written)
 
 ${roleLines.join('\n\n')}
+
+## Manifest — component API and real usage examples (generated, not hand-written)
+
+Props extracted from each component's actual TypeScript source; examples are the literal \`render\` source of that component's own Storybook stories, copied verbatim. When one of these examples already matches what the user asked for (a pricing card, a metric tile, a profile card...), treat it as a template, not just a style reference: keep its actual structure, hierarchy, and element choices, and only swap the content (copy, numbers, labels) for what the user's request implies. Don't author a structurally different composition when a real one already fits — that defeats the point of having real examples at all. Only diverge from an example's structure when the request genuinely calls for something the example doesn't cover (e.g. a comparison table instead of a single tier).
+
+${componentLines.join('\n\n')}
 
 ## Ground rules
 

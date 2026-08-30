@@ -38,33 +38,37 @@ function App() {
   const lastAssistantMessage = [...assistant.messages].reverse().find((m) => m.role === 'assistant');
   const generatedCode = useMemo(() => (lastAssistantMessage ? extractCodeBlock(lastAssistantMessage.text) : null), [lastAssistantMessage]);
 
+  // Generated content gets the canvas's full width — a page or dashboard
+  // someone asks for shouldn't be squeezed into the empty-state's narrow
+  // reading column. The 640px cap only applies to that empty state itself
+  // (prose + a demo card genuinely read better narrow).
   const canvas = (
     <div style={{ flex: 1, overflowY: 'auto', background: color.background }}>
-      <Stack gap="xl" style={{ padding: '2rem', maxWidth: 640, margin: '0 auto' }}>
-        {generatedCode ? (
+      {generatedCode ? (
+        <div style={{ padding: '2rem' }}>
           <CanvasPreview code={generatedCode} showCode={showCode} />
-        ) : (
-          <>
-            {showAlert && (
-              <Alert variant="info" onDismiss={() => setShowAlert(false)}>
-                Ask the assistant to generate a component — it'll render here, live.
-              </Alert>
-            )}
-            <Card padding="lg">
-              <Stack gap="md">
-                <Text typeScale="headingSm" as="h2">
-                  Card
-                </Text>
-                <Text typeScale="bodyMd">A component rendered from the installed package, not the source repo.</Text>
-                <Row gap="sm">
-                  <Button variant="primary">Primary</Button>
-                  <Button variant="secondary">Secondary</Button>
-                </Row>
-              </Stack>
-            </Card>
-          </>
-        )}
-      </Stack>
+        </div>
+      ) : (
+        <Stack gap="xl" style={{ padding: '2rem', maxWidth: 640, margin: '0 auto' }}>
+          {showAlert && (
+            <Alert variant="info" onDismiss={() => setShowAlert(false)}>
+              Ask the assistant to generate a component — it'll render here, live.
+            </Alert>
+          )}
+          <Card padding="lg">
+            <Stack gap="md">
+              <Text typeScale="headingSm" as="h2">
+                Card
+              </Text>
+              <Text typeScale="bodyMd">A component rendered from the installed package, not the source repo.</Text>
+              <Row gap="sm">
+                <Button variant="primary">Primary</Button>
+                <Button variant="secondary">Secondary</Button>
+              </Row>
+            </Stack>
+          </Card>
+        </Stack>
+      )}
     </div>
   );
 

@@ -96,7 +96,7 @@ packages:
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
   '@msanagu/pearl@file:vendor/msanagu-pearl-0.1.0.tgz':
-    resolution: {integrity: sha512-0WvBGl5nE073L3Ic9M3YYPuGbUu6DAN7ocU/q2KXuc1VRoBajRz6RQQgtx6Ni6SoXL+/sFeP+9ezi2Ovca3ggA==, tarball: file:vendor/msanagu-pearl-0.1.0.tgz}
+    resolution: {integrity: sha512-j4S3R/7O77mFRedW3RkRyyBZjOIc/ptDovDwlQ/AuQRfnRXxiDkUEPmb75yFaQ+vt285iBCOVQW0OKt7kbC+Sw==, tarball: file:vendor/msanagu-pearl-0.1.0.tgz}
     version: 0.1.0
     peerDependencies:
       react: '>=18'

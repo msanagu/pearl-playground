@@ -68,9 +68,12 @@ export function CanvasPreview({ code, showCode }: CanvasPreviewProps) {
           <code>{code}</code>
         </pre>
       ) : (
-        <div className="canvas-preview-stage">
-          <LivePreview />
-        </div>
+        // No wrapping box — LivePreview's output sits directly on the
+        // canvas's own app background, the way a real page would, not
+        // inside a second "preview frame". Whatever boundary the generated
+        // component itself has (a Card's own border, a page's own
+        // container) is the only one that shows.
+        <LivePreview />
       )}
     </LiveProvider>
   );
