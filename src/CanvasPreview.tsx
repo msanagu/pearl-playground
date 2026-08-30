@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { LiveProvider, LivePreview, LiveError } from 'react-live';
 import * as React from 'react';
 import { Button, Text, Stack, Row, Card, Input, Field, Icon, Alert, Tag, Link, color, radius, space, controlHeight, fontFamily, fontWeight } from '@msanagu/pearl';
@@ -12,6 +11,8 @@ const SCOPE = { React, Button, Text, Stack, Row, Card, Input, Field, Icon, Alert
 
 interface CanvasPreviewProps {
   code: string;
+  /** Owned by App.tsx — the Preview/Code toggle lives in the app bar, not here. */
+  showCode: boolean;
 }
 
 /**
@@ -21,20 +22,9 @@ interface CanvasPreviewProps {
  * evaluated, so a generated component can only ever touch what's listed
  * there, not arbitrary modules.
  */
-export function CanvasPreview({ code }: CanvasPreviewProps) {
-  const [showCode, setShowCode] = useState(false);
-
+export function CanvasPreview({ code, showCode }: CanvasPreviewProps) {
   return (
     <LiveProvider code={code} scope={SCOPE} noInline>
-      <div className="canvas-preview-toolbar">
-        <button type="button" className={`canvas-preview-tab${!showCode ? ' canvas-preview-tab--active' : ''}`} onClick={() => setShowCode(false)}>
-          Preview
-        </button>
-        <button type="button" className={`canvas-preview-tab${showCode ? ' canvas-preview-tab--active' : ''}`} onClick={() => setShowCode(true)}>
-          Code
-        </button>
-      </div>
-
       <LiveError className="canvas-preview-error" />
 
       {showCode ? (

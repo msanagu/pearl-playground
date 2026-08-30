@@ -1,30 +1,8 @@
 /* Canvas-side chrome for the live-rendered preview — separate from
    chrome.css (assistant panel only) since this belongs to the canvas/app
-   itself. Deliberately plain, not Pearl-themed, so the toolbar/tabs read as
-   app UI regardless of which Pearl theme the preview inside is rendering. */
-
-.canvas-preview-toolbar {
-  display: flex;
-  gap: 4px;
-  margin-bottom: 16px;
-}
-
-.canvas-preview-tab {
-  border: 1px solid #d4d4d8;
-  background: #ffffff;
-  border-radius: 6px;
-  padding: 6px 12px;
-  font-family: system-ui, sans-serif;
-  font-size: 13px;
-  cursor: pointer;
-  color: #52525b;
-}
-
-.canvas-preview-tab--active {
-  background: #18181b;
-  border-color: #18181b;
-  color: #ffffff;
-}
+   itself. Deliberately plain, not Pearl-themed, so it reads as app UI
+   regardless of which Pearl theme the preview inside is rendering. The
+   Preview/Code toggle itself lives in the app bar (appBar.css), not here. */
 
 .canvas-preview-stage {
   border: 1px solid #d4d4d8;

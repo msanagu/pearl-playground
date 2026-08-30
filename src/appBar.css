@@ -1,0 +1,61 @@
+/* The app's own top bar — real app chrome, spans the full viewport width
+   above both the assistant panel and the canvas. Deliberately plain/vanilla,
+   same reasoning as chrome.css: it's the tool's own UI, not something a
+   generated component could ever produce, so it stays visually separate
+   from whatever Pearl theme the canvas is rendering. */
+
+.app-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 52px;
+  flex-shrink: 0;
+  padding: 0 16px;
+  border-bottom: 1px solid #e4e4e7;
+  background: #ffffff;
+  font-family: system-ui, sans-serif;
+}
+
+.app-bar-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #18181b;
+}
+
+.app-bar-theme-select {
+  font: inherit;
+  font-size: 13px;
+  padding: 6px 10px;
+  border: 1px solid #d4d4d8;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #18181b;
+}
+
+.app-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-bar-tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.app-bar-tab {
+  border: 1px solid #d4d4d8;
+  background: #ffffff;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  color: #52525b;
+}
+
+.app-bar-tab--active {
+  background: #18181b;
+  border-color: #18181b;
+  color: #ffffff;
+}
