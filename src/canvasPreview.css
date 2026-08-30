@@ -4,6 +4,10 @@
    regardless of which Pearl theme the preview inside is rendering. The
    Preview/Code toggle itself lives in the app bar (appBar.css), not here. */
 
+.canvas-preview-code-wrap {
+  position: relative;
+}
+
 .canvas-preview-code {
   border: 1px solid #d4d4d8;
   border-radius: 10px;
@@ -14,6 +18,26 @@
   font-size: 13px;
   line-height: 1.5;
   margin: 0;
+}
+
+.canvas-preview-copy-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid #3f3f46;
+  border-radius: 6px;
+  background: #27272a;
+  color: #d4d4d8;
+  cursor: pointer;
+}
+.canvas-preview-copy-button:hover {
+  background: #3f3f46;
+  color: #ffffff;
 }
 
 .canvas-preview-error {

@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { LiveProvider, LivePreview, LiveError } from 'react-live';
 import * as React from 'react';
+import { TbCopy, TbCheck } from 'react-icons/tb';
 import { PiCheck, PiX, PiCaretDown, PiCaretRight, PiArrowRight, PiWarningCircle, PiInfo, PiStar, PiHeart, PiUser } from 'react-icons/pi';
 import { Button, Text, Stack, Row, Card, Input, Field, Icon, Alert, Tag, Link, color, radius, space, controlHeight, fontFamily, fontWeight } from '@msanagu/pearl';
 import './canvasPreview.css';
@@ -64,9 +66,12 @@ export function CanvasPreview({ code, showCode }: CanvasPreviewProps) {
       <LiveError className="canvas-preview-error" />
 
       {showCode ? (
-        <pre className="canvas-preview-code">
-          <code>{code}</code>
-        </pre>
+        <div className="canvas-preview-code-wrap">
+          <CopyButton code={code} />
+          <pre className="canvas-preview-code">
+            <code>{code}</code>
+          </pre>
+        </div>
       ) : (
         // No wrapping box — LivePreview's output sits directly on the
         // canvas's own app background, the way a real page would, not
@@ -76,5 +81,28 @@ export function CanvasPreview({ code, showCode }: CanvasPreviewProps) {
         <LivePreview />
       )}
     </LiveProvider>
+  );
+}
+
+function CopyButton({ code }: { code: string }) {
+  const [state, setState] = useState<'idle' | 'copied' | 'failed'>('idle');
+
+  async function handleClick() {
+    try {
+      await navigator.clipboard.writeText(code);
+      setState('copied');
+    } catch {
+      // Clipboard access can be denied by the browser's permission policy —
+      // nothing this code can fix, so fail visibly instead of throwing an
+      // unhandled rejection.
+      setState('failed');
+    }
+    setTimeout(() => setState('idle'), 1500);
+  }
+
+  return (
+    <button type="button" className="canvas-preview-copy-button" onClick={handleClick} aria-label={state === 'failed' ? 'Copy failed — clipboard access denied' : 'Copy code'}>
+      {state === 'copied' ? <TbCheck size={14} /> : <TbCopy size={14} />}
+    </button>
   );
 }

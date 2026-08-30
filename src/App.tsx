@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { TbSun, TbMoon } from 'react-icons/tb';
+import { TbSun, TbMoon, TbEye, TbCode } from 'react-icons/tb';
 import { Stack, Row, Text, Button, Card, Alert, color, fontFamily } from '@msanagu/pearl';
 import { ChatPanel, type PanelSide } from './ChatPanel';
 import { useAssistant } from './useAssistant';
@@ -91,14 +91,18 @@ function App() {
         <div className="app-bar-title">Pearl Playground</div>
         <div className="app-bar-right">
           {generatedCode && (
-            <div className="app-bar-tabs" role="group" aria-label="View">
-              <button type="button" className={`app-bar-tab${!showCode ? ' app-bar-tab--active' : ''}`} onClick={() => setShowCode(false)}>
-                Preview
-              </button>
-              <button type="button" className={`app-bar-tab${showCode ? ' app-bar-tab--active' : ''}`} onClick={() => setShowCode(true)}>
-                Code
-              </button>
-            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={showCode}
+              aria-label={showCode ? 'Showing code — switch to preview' : 'Showing preview — switch to code'}
+              className="view-toggle"
+              onClick={() => setShowCode(!showCode)}
+            >
+              <span className={`view-toggle-thumb${showCode ? ' view-toggle-thumb--right' : ''}`} />
+              <TbEye size={15} className={`view-toggle-icon${!showCode ? ' view-toggle-icon--active' : ''}`} />
+              <TbCode size={15} className={`view-toggle-icon${showCode ? ' view-toggle-icon--active' : ''}`} />
+            </button>
           )}
           <button
             type="button"

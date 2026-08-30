@@ -38,26 +38,49 @@
   gap: 12px;
 }
 
-.app-bar-tabs {
+/* A real toggle switch — one button, aria-pressed via role="switch", a
+   sliding thumb behind two static icons rather than two separate buttons
+   dressed up to look like one control. */
+.view-toggle {
+  position: relative;
   display: flex;
-  gap: 4px;
-}
-
-.app-bar-tab {
+  align-items: center;
+  gap: 2px;
+  width: 56px;
+  height: 30px;
+  padding: 3px;
   border: 1px solid #d4d4d8;
-  background: #ffffff;
-  border-radius: 6px;
-  padding: 6px 12px;
-  font: inherit;
-  font-size: 13px;
+  border-radius: 999px;
+  background: #f4f4f5;
   cursor: pointer;
-  color: #52525b;
 }
 
-.app-bar-tab--active {
-  background: #18181b;
-  border-color: #18181b;
-  color: #ffffff;
+.view-toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 24px;
+  height: 22px;
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+  transition: transform 150ms ease;
+}
+.view-toggle-thumb--right {
+  transform: translateX(26px);
+}
+
+.view-toggle-icon {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #a1a1aa;
+}
+.view-toggle-icon--active {
+  color: #18181b;
 }
 
 .app-bar-icon-button {
