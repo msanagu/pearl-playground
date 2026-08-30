@@ -89,6 +89,7 @@
 
 .chrome-input-row {
   display: flex;
+  align-items: flex-end;
   gap: 8px;
 }
 
@@ -99,6 +100,9 @@
   padding: 8px 10px;
   font-family: inherit;
   font-size: inherit;
+  resize: vertical;
+  min-height: 2.4em;
+  max-height: 10em;
 }
 
 .chrome-button {
@@ -109,4 +113,5 @@
   font-family: inherit;
   font-size: inherit;
   cursor: pointer;
+  flex-shrink: 0;
 }

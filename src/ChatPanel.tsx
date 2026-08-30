@@ -78,22 +78,37 @@ export function ChatPanel({ messages, onSend }: ChatPanelProps) {
 function PanelInput({ onSend }: { onSend: (text: string) => void }) {
   const [value, setValue] = useState('');
 
-  function handleSubmit(e: FormEvent) {
-    e.preventDefault();
+  function submit() {
     const trimmed = value.trim();
     if (!trimmed) return;
     onSend(trimmed);
     setValue('');
   }
 
+  function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    submit();
+  }
+
+  // Enter sends, Shift+Enter inserts a newline — the standard chat-input
+  // convention, since a bare <textarea> would otherwise treat Enter as
+  // "new line" with no way to send from the keyboard.
+  function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      submit();
+    }
+  }
+
   return (
     <form onSubmit={handleSubmit} className="chrome-input-row">
-      <input
+      <textarea
         className="chrome-input"
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        placeholder="Describe the UI you want…"
-        autoComplete="off"
+        onKeyDown={handleKeyDown}
+        placeholder="Describe the UI you want… (Shift+Enter for a new line)"
+        rows={2}
       />
       <button type="submit" className="chrome-button">
         Send
