@@ -60,7 +60,7 @@ export function useAssistant(activeTheme: ThemeName) {
       // thinking text unless this is set explicitly.
       const stream = client.messages.stream({
         model: 'claude-opus-5',
-        max_tokens: 4096,
+        max_tokens: 8192,
         system: systemPrompt,
         messages: history,
         thinking: { type: 'adaptive', display: 'summarized' },

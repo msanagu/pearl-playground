@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { TbSun, TbMoon, TbEye, TbCode } from 'react-icons/tb';
-import { Stack, Row, Text, Button, Card, Alert, color, fontFamily } from '@msanagu/pearl';
+import { Stack, Row, Text, Button, Card, Alert, color, fontFamily, space } from '@msanagu/pearl';
 import { ChatPanel, type PanelSide } from './ChatPanel';
 import { useAssistant } from './useAssistant';
 import { CanvasPreview } from './CanvasPreview';
@@ -24,7 +24,7 @@ import './appBar.css';
  */
 function App() {
   const [themeName, setThemeName] = useState<ThemeName>('pearl');
-  const [mode, setMode] = useState<ThemeMode>('light');
+  const [mode, setMode] = useState<ThemeMode>(THEMES.pearl.defaultMode);
   const assistant = useAssistant(themeName);
   const [side, setSide] = useState<PanelSide>('left');
   const [showCode, setShowCode] = useState(false);
@@ -45,11 +45,11 @@ function App() {
   const canvas = (
     <div style={{ flex: 1, overflowY: 'auto', background: color.background }}>
       {generatedCode ? (
-        <div style={{ padding: '2rem' }}>
+        <div style={{ padding: space.lg }}>
           <CanvasPreview code={generatedCode} showCode={showCode} />
         </div>
       ) : (
-        <Stack gap="xl" style={{ padding: '2rem', maxWidth: 640, margin: '0 auto' }}>
+        <Stack gap="xl" style={{ padding: space.lg, maxWidth: 640, margin: '0 auto' }}>
           {showAlert && (
             <Alert variant="info" onDismiss={() => setShowAlert(false)}>
               Ask the assistant to generate a component — it'll render here, live.
@@ -82,6 +82,7 @@ function App() {
       onSend={assistant.send}
       onSetApiKey={assistant.setApiKey}
       onClearApiKey={assistant.clearApiKey}
+      onShowCode={() => setShowCode(true)}
     />
   );
 
@@ -116,8 +117,13 @@ function App() {
             className="app-bar-theme-select"
             value={themeChosen ? themeName : ''}
             onChange={(e) => {
-              setThemeName(e.target.value as ThemeName);
+              const next = e.target.value as ThemeName;
+              setThemeName(next);
               setThemeChosen(true);
+              // Picking a theme snaps the mode to that theme's default —
+              // Tahitian and South Sea land in dark, Pearl and Freshwater in
+              // light. A manual toggle afterwards still overrides freely.
+              setMode(THEMES[next].defaultMode);
             }}
             aria-label="Canvas theme"
           >

@@ -4,6 +4,7 @@ import * as React from 'react';
 import { TbCopy, TbCheck } from 'react-icons/tb';
 import { PiCheck, PiX, PiCaretDown, PiCaretRight, PiArrowRight, PiWarningCircle, PiInfo, PiStar, PiHeart, PiUser } from 'react-icons/pi';
 import { Button, Text, Stack, Row, Card, Input, Field, Icon, Alert, Tag, Link, color, radius, space, controlHeight, fontFamily, fontWeight } from '@msanagu/pearl';
+import { toDisplaySnippets } from './toDisplayCode';
 import './canvasPreview.css';
 
 // Everything a generated code block is allowed to reference — matches
@@ -61,15 +62,33 @@ interface CanvasPreviewProps {
  * there, not arbitrary modules.
  */
 export function CanvasPreview({ code, showCode }: CanvasPreviewProps) {
+  // Display-only: react-live below still evaluates the original sandbox
+  // `code` (no imports, inline `<style>`) exactly as-is — this is purely
+  // what the Code tab shows and what the copy button copies, reshaped into
+  // what you'd actually paste into a real Pearl codebase.
+  const { cssFile, componentFile } = showCode ? toDisplaySnippets(code) : { cssFile: null, componentFile: code };
+  const copyText = cssFile ? `// Feature.css.ts\n${cssFile}\n// Feature.tsx\n${componentFile}` : componentFile;
+
   return (
     <LiveProvider code={code} scope={SCOPE} noInline>
       <LiveError className="canvas-preview-error" />
 
       {showCode ? (
         <div className="canvas-preview-code-wrap">
-          <CopyButton code={code} />
+          <div className="canvas-preview-code-toolbar">
+            <CopyButton code={copyText} />
+          </div>
+          {cssFile && (
+            <>
+              <div className="canvas-preview-code-label">Feature.css.ts</div>
+              <pre className="canvas-preview-code">
+                <code>{cssFile}</code>
+              </pre>
+            </>
+          )}
+          <div className="canvas-preview-code-label">Feature.tsx</div>
           <pre className="canvas-preview-code">
-            <code>{code}</code>
+            <code>{componentFile}</code>
           </pre>
         </div>
       ) : (

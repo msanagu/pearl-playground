@@ -129,6 +129,25 @@
   gap: var(--chrome-space-sm);
 }
 
+.chrome-show-code-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: var(--chrome-space-xs) 0;
+  padding: 6px 10px;
+  border: 1px solid var(--chrome-color-border);
+  border-radius: var(--chrome-radius-sm);
+  background: var(--chrome-color-surface);
+  color: var(--chrome-color-text);
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.chrome-show-code-button:hover {
+  background: var(--chrome-color-surface-hover, var(--chrome-color-surface));
+  border-color: var(--chrome-color-text-subtle);
+}
+
 .chrome-text-button {
   border: none;
   background: transparent;
@@ -452,6 +471,39 @@
   white-space: pre-wrap;
   max-height: 200px;
   overflow-y: auto;
+}
+
+/* The in-progress code fence, mid-stream — bounded and self-scrolling like
+   .chrome-thinking-body above, for the same reason: not meant to be read
+   exhaustively while it's still arriving, and its growth shouldn't be what
+   drags the whole message list's scroll position down. */
+.chrome-generating {
+  margin-bottom: var(--chrome-space-sm);
+  border: 1px solid var(--chrome-color-border);
+  border-radius: var(--chrome-radius-sm);
+  background: var(--chrome-color-surface);
+}
+
+.chrome-generating-summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  color: var(--chrome-color-text-subtle);
+}
+
+.chrome-generating-body {
+  margin: 0;
+  padding: 0 10px 10px;
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--chrome-color-text-subtle);
+  max-height: 160px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 /* Animated typing indicator — three dots, staggered bounce. Used both at

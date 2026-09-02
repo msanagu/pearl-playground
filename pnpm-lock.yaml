@@ -12,8 +12,8 @@ importers:
         specifier: ^0.122.0
         version: 0.122.0
       '@msanagu/pearl':
-        specifier: file:vendor/msanagu-pearl-0.1.0.tgz
-        version: file:vendor/msanagu-pearl-0.1.0.tgz(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+        specifier: ^0.4.0
+        version: 0.4.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       react:
         specifier: ^19.2.8
         version: 19.2.8
@@ -95,9 +95,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@msanagu/pearl@file:vendor/msanagu-pearl-0.1.0.tgz':
-    resolution: {integrity: sha512-j4S3R/7O77mFRedW3RkRyyBZjOIc/ptDovDwlQ/AuQRfnRXxiDkUEPmb75yFaQ+vt285iBCOVQW0OKt7kbC+Sw==, tarball: file:vendor/msanagu-pearl-0.1.0.tgz}
-    version: 0.1.0
+  '@msanagu/pearl@0.4.0':
+    resolution: {integrity: sha512-WMAAbpWjGykSA0moZq4ttcd9VIrapxBWoM2ItDdj38397L+GKRtOZxk0OVASiB05YLey6r0sboXhYN3R++Hdaw==, tarball: https://npm.pkg.github.com/download/@msanagu/pearl/0.4.0/ccdb4c3f320c5ad3c745d2fb0573ce501a202e66}
     peerDependencies:
       react: '>=18'
       react-dom: '>=18'
@@ -1016,7 +1015,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.6.0
 
-  '@msanagu/pearl@file:vendor/msanagu-pearl-0.1.0.tgz(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
+  '@msanagu/pearl@0.4.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
     dependencies:
       '@fontsource/anton': 5.3.0
       '@fontsource/azeret-mono': 5.3.0

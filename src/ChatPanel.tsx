@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { TbLayoutSidebarLeftCollapse, TbLayoutSidebarRightCollapse, TbArrowUp } from 'react-icons/tb';
+import { TbLayoutSidebarLeftCollapse, TbLayoutSidebarRightCollapse, TbArrowUp, TbCode } from 'react-icons/tb';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import type { ChatMessage } from './ChatMessage';
 import { ApiKeyGate } from './ApiKeyGate';
-import { stripCodeBlocks } from './extractCodeBlock';
+import { stripCodeBlocks, splitStreamingCode, SHOW_CODE_MARKER } from './extractCodeBlock';
 import './chrome.css';
 
 export type PanelSide = 'left' | 'right';
@@ -18,6 +18,7 @@ interface ChatPanelProps {
   onSend: (text: string) => void;
   onSetApiKey: (key: string) => void;
   onClearApiKey: () => void;
+  onShowCode: () => void;
 }
 
 const DEFAULT_WIDTH = 360;
@@ -41,7 +42,7 @@ const MAX_WIDTH = 600;
  * the rest of the app (canvas) works regardless; only the assistant itself
  * is gated.
  */
-export function ChatPanel({ messages, pending, hasApiKey, side, onSideChange, onSend, onSetApiKey, onClearApiKey }: ChatPanelProps) {
+export function ChatPanel({ messages, pending, hasApiKey, side, onSideChange, onSend, onSetApiKey, onClearApiKey, onShowCode }: ChatPanelProps) {
   const [open, setOpen] = useState(true);
   const [width, setWidth] = useState(DEFAULT_WIDTH);
   const draggingRef = useRef(false);
@@ -66,8 +67,20 @@ export function ChatPanel({ messages, pending, hasApiKey, side, onSideChange, on
     };
   }, [side]);
 
+  // Auto-follow only while the user is already at (or near) the bottom —
+  // otherwise a streaming response force-scrolls them back down on every
+  // chunk, fighting any attempt to scroll up and read something earlier.
+  // `stickyRef` is written from real scroll events (both the user's and this
+  // effect's own programmatic ones), so it reflects where they left off
+  // rather than being recomputed from post-update layout, which would
+  // already reflect the newly-grown content.
+  const stickyRef = useRef(true);
+  const STICK_THRESHOLD_PX = 48;
+
   useEffect(() => {
-    messagesRef.current?.scrollTo({ top: messagesRef.current.scrollHeight });
+    if (stickyRef.current) {
+      messagesRef.current?.scrollTo({ top: messagesRef.current.scrollHeight });
+    }
   }, [messages]);
 
   if (!open) {
@@ -127,7 +140,14 @@ export function ChatPanel({ messages, pending, hasApiKey, side, onSideChange, on
 
       {hasApiKey ? (
         <>
-          <div className="chrome-messages" ref={messagesRef}>
+          <div
+            className="chrome-messages"
+            ref={messagesRef}
+            onScroll={(e) => {
+              const el = e.currentTarget;
+              stickyRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < STICK_THRESHOLD_PX;
+            }}
+          >
             {messages.map((m, i) => {
               const isStreaming = pending && i === messages.length - 1;
               return (
@@ -139,7 +159,15 @@ export function ChatPanel({ messages, pending, hasApiKey, side, onSideChange, on
                     </details>
                   )}
                   {m.role === 'assistant' ? (
-                    m.text ? <ReactMarkdown remarkPlugins={[remarkGfm]}>{stripCodeBlocks(m.text)}</ReactMarkdown> : isStreaming && !m.thinking && <TypingDots />
+                    m.text ? (
+                      isStreaming ? (
+                        <StreamingMessageBody text={m.text} />
+                      ) : (
+                        <MessageBody text={m.text} onShowCode={onShowCode} />
+                      )
+                    ) : (
+                      isStreaming && !m.thinking && <TypingDots />
+                    )
                   ) : (
                     m.text
                   )}
@@ -153,6 +181,65 @@ export function ChatPanel({ messages, pending, hasApiKey, side, onSideChange, on
         <ApiKeyGate onSubmit={onSetApiKey} />
       )}
     </div>
+  );
+}
+
+/**
+ * Renders an assistant message with `SHOW_CODE_MARKER` swapped for a real
+ * button — clicking it jumps the canvas straight to the Code tab instead of
+ * leaving the user to find the toggle in the app bar themselves.
+ */
+function MessageBody({ text, onShowCode }: { text: string; onShowCode: () => void }) {
+  const segments = stripCodeBlocks(text).split(SHOW_CODE_MARKER);
+  return (
+    <>
+      {segments.map((segment, i) => (
+        <span key={i}>
+          {segment && <ReactMarkdown remarkPlugins={[remarkGfm]}>{segment}</ReactMarkdown>}
+          {i < segments.length - 1 && (
+            <button type="button" className="chrome-show-code-button" onClick={onShowCode}>
+              <TbCode size={14} />
+              View generated code
+            </button>
+          )}
+        </span>
+      ))}
+    </>
+  );
+}
+
+/**
+ * The streaming variant of a message body: an in-progress, not-yet-closed
+ * code fence renders in its own bounded, self-scrolling "Generating" box —
+ * same idea as the Thinking block (`.chrome-thinking-body`'s `max-height` +
+ * `overflow-y`) — instead of as raw, ever-growing markdown text. That's what
+ * was dragging the whole panel's scroll position down on every streamed
+ * token: an unclosed fence never matches `stripCodeBlocks`' regex, so the
+ * partial code rendered directly in the flow, growing the message (and with
+ * it, the auto-scroll target) on every chunk.
+ */
+function StreamingMessageBody({ text }: { text: string }) {
+  const { prose, partialCode } = splitStreamingCode(text);
+  const codeRef = useRef<HTMLPreElement>(null);
+
+  useEffect(() => {
+    codeRef.current?.scrollTo({ top: codeRef.current.scrollHeight });
+  }, [partialCode]);
+
+  return (
+    <>
+      {prose && <ReactMarkdown remarkPlugins={[remarkGfm]}>{stripCodeBlocks(prose).replaceAll(SHOW_CODE_MARKER, '')}</ReactMarkdown>}
+      {partialCode !== null && (
+        <div className="chrome-generating">
+          <div className="chrome-generating-summary">
+            <TypingDots small /> Generating
+          </div>
+          <pre className="chrome-generating-body" ref={codeRef}>
+            <code>{partialCode}</code>
+          </pre>
+        </div>
+      )}
+    </>
   );
 }
 
