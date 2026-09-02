@@ -12,6 +12,10 @@ on:
 
 permissions:
   contents: read
+  # `@msanagu/pearl` comes from GitHub Packages, whose npm registry requires
+  # an auth token on every request — even for public packages. This grants
+  # the run's built-in GITHUB_TOKEN read access to it.
+  packages: read
   pages: write
   id-token: write
 
@@ -29,6 +33,12 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+      # Written to the user-level ~/.npmrc, not the project's: pnpm refuses to
+      # expand credentials from a project .npmrc (it's committed, so a token
+      # there could leak to an attacker-controlled registry) and would ignore
+      # the line entirely.
+      - name: Authenticate to GitHub Packages
+        run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
       - uses: actions/configure-pages@v5
