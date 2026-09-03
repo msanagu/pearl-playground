@@ -6,9 +6,9 @@ A test bed for `@msanagu/pearl`'s [manifest.json / llms.txt](https://github.com/
 
 Pearl's manifest/`llms.txt` are meant to let a client-side coding agent (Copilot, Cursor, etc.) generate on-system UI — correct components, correct theme tokens, correct role/treatment usage — without a retrieval layer or an MCP server standing between it and the truth. This repo is where that claim gets tested against a real install, not just read as a design doc.
 
-**Phase 1 (current):** confirm the package installs and renders correctly, and that the manifest/`llms.txt` land where a client-side agent would actually look for them.
+**Phase 1:** confirmed the package installs and renders correctly, and that the manifest/`llms.txt` land where a client-side agent would actually look for them.
 
-**Phase 2 (not started):** a chatbot-driven "vibe coding" surface — a user supplies their own LLM API key, describes what they want, and the generated code gets checked against Pearl's real components/tokens/roles, grounded entirely by the installed package's structured data. No heavy MCP; just what's already sitting in `node_modules`.
+**Phase 2 (current):** a chatbot-driven "vibe coding" surface — the user supplies their own Anthropic API key, describes what they want, and Claude generates code that renders live in-browser via `react-live`. The system prompt is built entirely from the installed package's manifest data (component APIs, real usage examples, per-theme role/treatment tables, override contract, token semantics) — no hand-written coaching layered on top, so hallucinated props or invented components are a real signal about the manifest's sufficiency, not a bug to quietly patch. No heavy MCP; just what's already sitting in `node_modules`.
 
 ## Verifying the install
 
@@ -19,4 +19,4 @@ cat node_modules/@msanagu/pearl/dist/manifest.json
 
 ## Stack
 
-Vite + React + TypeScript, scaffolded from `create-vite`. Nothing else added yet.
+Vite + React + TypeScript, scaffolded from `create-vite`. `react-live` for the in-browser render sandbox, `@anthropic-ai/sdk` for the assistant, `react-markdown` for chat rendering, `react-icons` for the curated icon set generated code can reference.
