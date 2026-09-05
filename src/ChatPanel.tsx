@@ -1,11 +1,32 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { TbLayoutSidebarLeftCollapse, TbLayoutSidebarRightCollapse, TbArrowUp, TbCode } from 'react-icons/tb';
+import { TbLayoutSidebarLeftCollapse, TbLayoutSidebarRightCollapse, TbArrowUp, TbArrowDown, TbCode, TbX } from 'react-icons/tb';
 import ReactMarkdown from 'react-markdown';
+import type { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import type { ChatMessage } from './ChatMessage';
 import { ApiKeyGate } from './ApiKeyGate';
+import { CodeBlock } from './CodeBlock';
 import { stripCodeBlocks, splitStreamingCode, SHOW_CODE_MARKER } from './extractCodeBlock';
 import './chrome.css';
+
+/**
+ * react-markdown renderers shared by every assistant-message body. Fenced
+ * blocks route to the syntax-highlighted <CodeBlock> (which renders its own
+ * <pre>, hence the `pre` passthrough); inline code stays a plain <code> for
+ * chrome.css to style as a pill. "Block vs inline" can't use a removed v10
+ * `inline` flag — a `language-*` class or an embedded newline is the tell.
+ */
+const markdownComponents: Components = {
+  pre: ({ children }) => <>{children}</>,
+  code: ({ className, children }) => {
+    const text = String(children ?? '');
+    const lang = /language-(\w+)/.exec(className ?? '')?.[1];
+    if (lang || text.includes('\n')) {
+      return <CodeBlock code={text} language={lang ?? 'tsx'} className="chrome-code-block" />;
+    }
+    return <code className={className}>{children}</code>;
+  },
+};
 
 export type PanelSide = 'left' | 'right';
 
@@ -77,9 +98,36 @@ export function ChatPanel({ messages, pending, hasApiKey, side, onSideChange, on
   const stickyRef = useRef(true);
   const STICK_THRESHOLD_PX = 48;
 
+  // Drives the jump-to-bottom button and the bottom fade: true only when the
+  // list is scrolled to (within 1px of) its end. Distinct from `stickyRef`,
+  // whose 48px slack decides auto-follow — a user reading 20px up should see
+  // the affordance without the stream yanking them back down.
+  const [atBottom, setAtBottom] = useState(true);
+
+  function syncScrollState(el: HTMLDivElement) {
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    stickyRef.current = distanceFromBottom < STICK_THRESHOLD_PX;
+    setAtBottom(distanceFromBottom < 1);
+  }
+
+  function scrollToBottom() {
+    const el = messagesRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+    stickyRef.current = true;
+    setAtBottom(true);
+  }
+
   useEffect(() => {
+    const el = messagesRef.current;
+    if (!el) return;
     if (stickyRef.current) {
-      messagesRef.current?.scrollTo({ top: messagesRef.current.scrollHeight });
+      el.scrollTo({ top: el.scrollHeight });
+      setAtBottom(true);
+    } else {
+      // Content grew while the user was reading higher up — re-check whether
+      // the end is now off-screen so the button and fade appear.
+      setAtBottom(el.scrollHeight - el.scrollTop - el.clientHeight < 1);
     }
   }, [messages]);
 
@@ -126,54 +174,61 @@ export function ChatPanel({ messages, pending, hasApiKey, side, onSideChange, on
         <div className="chrome-label">
           Pearl Assistant
         </div>
-        <div className="chrome-header-actions">
-          {hasApiKey && (
-            <button type="button" className="chrome-text-button" onClick={onClearApiKey}>
-              Remove key
-            </button>
-          )}
-          <button type="button" className="chrome-close-button" onClick={() => setOpen(false)} aria-label="Close assistant panel">
-            ×
+        <button type="button" className="chrome-close-button" onClick={() => setOpen(false)} aria-label="Close assistant panel">
+          <TbX size={16} />
+        </button>
+        {hasApiKey && (
+          <button type="button" className="chrome-text-button" onClick={onClearApiKey}>
+            Remove key
           </button>
-        </div>
+        )}
       </div>
 
       {hasApiKey ? (
         <>
-          <div
-            className="chrome-messages"
-            ref={messagesRef}
-            onScroll={(e) => {
-              const el = e.currentTarget;
-              stickyRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < STICK_THRESHOLD_PX;
-            }}
-          >
-            {messages.map((m, i) => {
-              const isStreaming = pending && i === messages.length - 1;
-              return (
-                <div className={`chrome-message chrome-message--${m.role}`} key={m.id}>
-                  {m.role === 'assistant' && m.thinking && (
-                    <details className="chrome-thinking" open={isStreaming}>
-                      <summary className="chrome-thinking-summary">{isStreaming && <TypingDots small />} Thinking</summary>
-                      <div className="chrome-thinking-body">{m.thinking}</div>
-                    </details>
-                  )}
-                  {m.role === 'assistant' ? (
-                    m.text ? (
-                      isStreaming ? (
-                        <StreamingMessageBody text={m.text} />
+          <div className="chrome-messages-region">
+            <div
+              className={`chrome-messages${atBottom ? '' : ' chrome-messages--faded'}`}
+              ref={messagesRef}
+              onScroll={(e) => syncScrollState(e.currentTarget)}
+            >
+              {messages.map((m, i) => {
+                const isStreaming = pending && i === messages.length - 1;
+                return (
+                  <div className={`chrome-message chrome-message--${m.role}`} key={m.id}>
+                    {m.role === 'assistant' && m.thinking && (
+                      <details className="chrome-thinking" open={isStreaming}>
+                        <summary className="chrome-thinking-summary">{isStreaming && <TypingDots small />} Thinking</summary>
+                        <div className="chrome-thinking-body">{m.thinking}</div>
+                      </details>
+                    )}
+                    {m.role === 'assistant' ? (
+                      m.text ? (
+                        isStreaming ? (
+                          <StreamingMessageBody text={m.text} />
+                        ) : (
+                          <MessageBody text={m.text} onShowCode={onShowCode} />
+                        )
                       ) : (
-                        <MessageBody text={m.text} onShowCode={onShowCode} />
+                        isStreaming && !m.thinking && <TypingDots />
                       )
                     ) : (
-                      isStreaming && !m.thinking && <TypingDots />
-                    )
-                  ) : (
-                    m.text
-                  )}
-                </div>
-              );
-            })}
+                      m.text
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            {!atBottom && (
+              <button
+                type="button"
+                className="chrome-scroll-bottom-button"
+                onClick={scrollToBottom}
+                aria-label="Scroll to latest"
+              >
+                <TbArrowDown size={16} />
+              </button>
+            )}
           </div>
           <PanelInput onSend={onSend} disabled={pending} />
         </>
@@ -195,7 +250,11 @@ function MessageBody({ text, onShowCode }: { text: string; onShowCode: () => voi
     <>
       {segments.map((segment, i) => (
         <span key={i}>
-          {segment && <ReactMarkdown remarkPlugins={[remarkGfm]}>{segment}</ReactMarkdown>}
+          {segment && (
+            <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+              {segment}
+            </ReactMarkdown>
+          )}
           {i < segments.length - 1 && (
             <button type="button" className="chrome-show-code-button" onClick={onShowCode}>
               <TbCode size={14} />
@@ -228,15 +287,17 @@ function StreamingMessageBody({ text }: { text: string }) {
 
   return (
     <>
-      {prose && <ReactMarkdown remarkPlugins={[remarkGfm]}>{stripCodeBlocks(prose).replaceAll(SHOW_CODE_MARKER, '')}</ReactMarkdown>}
+      {prose && (
+        <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+          {stripCodeBlocks(prose).replaceAll(SHOW_CODE_MARKER, '')}
+        </ReactMarkdown>
+      )}
       {partialCode !== null && (
         <div className="chrome-generating">
           <div className="chrome-generating-summary">
             <TypingDots small /> Generating
           </div>
-          <pre className="chrome-generating-body" ref={codeRef}>
-            <code>{partialCode}</code>
-          </pre>
+          <CodeBlock code={partialCode} language="tsx" className="chrome-generating-body" preRef={codeRef} />
         </div>
       )}
     </>

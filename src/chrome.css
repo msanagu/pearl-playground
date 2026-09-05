@@ -83,9 +83,9 @@
 
 .chrome-header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--chrome-space-sm);
+  gap: var(--chrome-space-sm) var(--chrome-space-sm);
   padding: var(--chrome-space-md) var(--chrome-space-lg);
   border-bottom: 1px solid var(--chrome-color-border);
 }
@@ -121,12 +121,7 @@
   font-weight: 600;
   font-size: 13px;
   flex: 1;
-}
-
-.chrome-header-actions {
-  display: flex;
-  align-items: center;
-  gap: var(--chrome-space-sm);
+  white-space: nowrap;
 }
 
 .chrome-show-code-button {
@@ -148,7 +143,13 @@
   border-color: var(--chrome-color-text-subtle);
 }
 
+/* "Remove key" drops to its own row beneath the toggle/label/close row: the
+   header is flex-wrap and a 100% basis forces the wrap at any panel width.
+   It never sits inline with the close button. */
 .chrome-text-button {
+  flex-basis: 100%;
+  order: 1;
+  text-align: left;
   border: none;
   background: transparent;
   color: var(--chrome-color-text-subtle);
@@ -163,15 +164,17 @@
 }
 
 .chrome-close-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: none;
   border-radius: var(--chrome-radius-sm);
   background: transparent;
   width: 26px;
   height: 26px;
-  line-height: 1;
+  padding: 0;
   cursor: pointer;
   color: var(--chrome-color-text-subtle);
-  font-size: 16px;
 }
 .chrome-close-button:hover {
   background: var(--chrome-color-surface);
@@ -197,6 +200,16 @@
   z-index: 10;
 }
 
+/* Wraps the scroll container so the jump-to-bottom button can be positioned
+   against the viewport edge, unaffected by scroll position. */
+.chrome-messages-region {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
 .chrome-messages {
   flex: 1;
   overflow-y: auto;
@@ -205,6 +218,36 @@
   flex-direction: column;
   gap: var(--chrome-space-lg);
   padding: var(--chrome-space-lg);
+}
+
+/* Bottom fade when content runs past the fold — signals there's more below
+   without the hard clip of an opaque edge. mask-image tracks the element
+   box, not the scrolled content, so the fade stays pinned to the bottom. */
+.chrome-messages--faded {
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 56px), transparent);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 56px), transparent);
+}
+
+.chrome-scroll-bottom-button {
+  position: absolute;
+  bottom: var(--chrome-space-md);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--chrome-radius-full);
+  border: 1px solid var(--chrome-color-border);
+  background: var(--chrome-color-background);
+  color: var(--chrome-color-text);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14), 0 1px 2px rgba(0, 0, 0, 0.06);
+  z-index: 2;
+}
+.chrome-scroll-bottom-button:hover {
+  border-color: var(--chrome-color-text-subtle);
 }
 
 .chrome-message {
@@ -281,18 +324,24 @@
   border-radius: 4px;
   padding: 1px 5px;
 }
-.chrome-message--assistant pre {
+/* Plain (non-highlighted) fenced blocks — indented text, shell transcripts,
+   anything react-markdown hands us without a language. The syntax-highlighted
+   .code-block (see codeBlock.css) opts out of this and brings its own ground. */
+.chrome-message--assistant pre:not(.code-block) {
   background: var(--chrome-color-surface);
   border: 1px solid var(--chrome-color-border);
   border-radius: var(--chrome-radius-sm);
   padding: var(--chrome-space-md);
   overflow-x: auto;
 }
-.chrome-message--assistant pre code {
+.chrome-message--assistant pre:not(.code-block) code {
   background: none;
   padding: 0;
   font-size: 12px;
   line-height: 1.5;
+}
+.chrome-message--assistant .chrome-code-block {
+  font-size: 12px;
 }
 .chrome-message--assistant table {
   border-collapse: collapse;
@@ -479,9 +528,10 @@
    drags the whole message list's scroll position down. */
 .chrome-generating {
   margin-bottom: var(--chrome-space-sm);
-  border: 1px solid var(--chrome-color-border);
+  border: 1px solid #d4d4d8;
   border-radius: var(--chrome-radius-sm);
-  background: var(--chrome-color-surface);
+  background: #18181b;
+  overflow: hidden;
 }
 
 .chrome-generating-summary {
@@ -490,16 +540,17 @@
   gap: 6px;
   padding: 6px 10px;
   font-size: 12px;
-  color: var(--chrome-color-text-subtle);
+  color: #a1a1aa;
 }
 
-.chrome-generating-body {
-  margin: 0;
+/* Layered on .code-block (codeBlock.css): drop its frame — the .chrome-generating
+   wrapper already owns the border/ground — and clamp it to a compact, self-
+   scrolling window so mid-stream growth doesn't drag the message list down. */
+.chrome-generating .chrome-generating-body {
+  border: none;
+  border-radius: 0;
   padding: 0 10px 10px;
-  font-family: ui-monospace, monospace;
   font-size: 11px;
-  line-height: 1.5;
-  color: var(--chrome-color-text-subtle);
   max-height: 160px;
   overflow-y: auto;
   white-space: pre-wrap;
