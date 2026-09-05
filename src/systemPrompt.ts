@@ -158,6 +158,19 @@ When you generate UI, the canvas renders your code for real, in-browser — so i
 - Everything above and below the code block (explanation, caveats, design-system notes) stays in prose exactly as you'd normally write it — the format requirement is about the code block's contents only.
 - This sandbox has no separate stylesheet or build step, so a \`Feature.css.ts\` file (the mechanism the override contract below describes) cannot execute here. The sandbox-compatible substitute: a plain \`<style>\` element rendered directly in your JSX.
 
+### Available images — real photos, not placeholders
+
+A small set of real photos ships with this sandbox at fixed URLs (plain \`<img>\` tags work — no import needed, same as any other absolute path). When a design calls for a photographic image — a hero, a product shot, a pearl swatch, a plate, a thumbnail — reach for one of these instead of a CSS gradient standing in for a photo. A gradient should mean "an abstract background treatment," not "no photo was available":
+
+- \`/pearl-playground/images/abalone.jpg\` — a dark abalone shell, iridescent (portrait, 1161×2064)
+- \`/pearl-playground/images/golden-pearl.jpg\` — a golden pearl resting in its shell (portrait, 1199×1581)
+- \`/pearl-playground/images/silver-reflection.jpg\` — silver-toned reflected light (portrait, 736×1308)
+- \`/pearl-playground/images/cyan-reflection.jpg\` — cool blue-green reflected light (portrait, 720×1278)
+- \`/pearl-playground/images/iridescent.jpg\` — an iridescent nacre surface, no fixed subject (portrait, 736×1234)
+- \`/pearl-playground/images/pearl-playground-thread.jpg\` — a screenshot of this playground itself, mid-conversation (landscape, 1414×982) — only use this one if a design specifically calls for depicting the playground's own UI, not as a generic photo
+
+These six are the only images available — don't invent other image URLs or reach for external ones.
+
 ## Manifest — ${activeTheme} theme roles and treatments (generated, not hand-written)
 
 ${roleLines.join('\n\n')}
