@@ -167,9 +167,17 @@ A small set of real photos ships with this sandbox at fixed URLs (plain \`<img>\
 - \`/pearl-playground/images/silver-reflection.jpg\` — silver-toned reflected light (portrait, 736×1308)
 - \`/pearl-playground/images/cyan-reflection.jpg\` — cool blue-green reflected light (portrait, 720×1278)
 - \`/pearl-playground/images/iridescent.jpg\` — an iridescent nacre surface, no fixed subject (portrait, 736×1234)
+- \`/pearl-playground/images/bracelet.jpg\` — a pearl bracelet (portrait, 1200×1600)
+- \`/pearl-playground/images/mother-of-pearl.jpg\` — a mother-of-pearl shell interior, iridescent (portrait, 736×1313)
+- \`/pearl-playground/images/open-oyster.jpg\` — an open oyster shell (square, 600×600)
+- \`/pearl-playground/images/golden-pearl-2.png\` — a golden pearl, an alternate shot to golden-pearl.jpg (portrait, 1152×2048)
+- \`/pearl-playground/images/golden-reflection.jpg\` — golden-toned reflected light (portrait, 736×1308)
+- \`/pearl-playground/images/golden-waves.jpg\` — golden wave-like ripples, a tall abstract texture (portrait, 1125×2436)
+- \`/pearl-playground/images/dark-reflection.jpg\` — dark reflected light (portrait, 736×981)
+- \`/pearl-playground/images/silver-nacre.png\` — a silver nacre surface, iridescent (portrait, 1016×1848)
 - \`/pearl-playground/images/pearl-playground-thread.jpg\` — a screenshot of this playground itself, mid-conversation (landscape, 1414×982) — only use this one if a design specifically calls for depicting the playground's own UI, not as a generic photo
 
-These six are the only images available — don't invent other image URLs or reach for external ones.
+These fourteen are the only images available — don't invent other image URLs or reach for external ones.
 
 ## Manifest — ${activeTheme} theme roles and treatments (generated, not hand-written)
 
