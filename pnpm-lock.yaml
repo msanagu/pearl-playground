@@ -14,6 +14,9 @@ importers:
       '@msanagu/pearl':
         specifier: ^0.0.0-test
         version: 0.0.0-test(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      prism-react-renderer:
+        specifier: ^2.4.1
+        version: 2.4.1(react@19.2.8)
       react:
         specifier: ^19.2.8
         version: 19.2.8

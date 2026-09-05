@@ -1,0 +1,32 @@
+/* Shared syntax-highlighted <pre>, used by the Code tab (canvasPreview) and
+   the assistant panel's markdown fences + streaming "Generating" box. One
+   dark palette everywhere so a code block reads the same regardless of which
+   surface it's sitting on — the token colours are tuned for the #18181b
+   ground set here, so the ground has to travel with them. Per-context tweaks
+   (compact font, no border, scroll clamp) are layered on top by the host
+   stylesheet via a second class on the same <pre>. */
+
+.code-block {
+  margin: 0;
+  padding: 16px;
+  background: #18181b;
+  border: 1px solid #d4d4d8;
+  border-radius: 10px;
+  overflow-x: auto;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #e4e4e7;
+  tab-size: 2;
+}
+
+.code-block code {
+  display: block;
+  background: none;
+  padding: 0;
+  font: inherit;
+}
+
+.code-block .token-line {
+  min-height: 1.5em;
+}

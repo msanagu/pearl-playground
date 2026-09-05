@@ -5,6 +5,7 @@ import { TbCopy, TbCheck } from 'react-icons/tb';
 import { PiCheck, PiX, PiCaretDown, PiCaretRight, PiArrowRight, PiWarningCircle, PiInfo, PiStar, PiHeart, PiUser } from 'react-icons/pi';
 import { Button, Text, Stack, Row, Card, Input, Field, Icon, Alert, Tag, Link, color, radius, space, controlHeight, fontFamily, fontWeight } from '@msanagu/pearl';
 import { toDisplaySnippets } from './toDisplayCode';
+import { CodeBlock } from './CodeBlock';
 import './canvasPreview.css';
 
 // Everything a generated code block is allowed to reference — matches
@@ -67,7 +68,17 @@ export function CanvasPreview({ code, showCode }: CanvasPreviewProps) {
   // what the Code tab shows and what the copy button copies, reshaped into
   // what you'd actually paste into a real Pearl codebase.
   const { cssFile, componentFile } = showCode ? toDisplaySnippets(code) : { cssFile: null, componentFile: code };
-  const copyText = cssFile ? `// Feature.css.ts\n${cssFile}\n// Feature.tsx\n${componentFile}` : componentFile;
+
+  // One entry per distinct file the generation produced — `Feature.tsx`
+  // always, plus `Feature.css.ts` only when there was a `<style>` block to
+  // extract. The summary heading below names every entry so "Copy all"
+  // never silently pulls in a file the user didn't know was there.
+  const files = [
+    ...(cssFile ? [{ name: 'Feature.css.ts', code: cssFile }] : []),
+    { name: 'Feature.tsx', code: componentFile },
+  ];
+  const multiFile = files.length > 1;
+  const copyAllText = files.map((f) => `// ${f.name}\n${f.code}`).join('\n\n');
 
   return (
     <LiveProvider code={code} scope={SCOPE} noInline>
@@ -75,21 +86,26 @@ export function CanvasPreview({ code, showCode }: CanvasPreviewProps) {
 
       {showCode ? (
         <div className="canvas-preview-code-wrap">
-          <div className="canvas-preview-code-toolbar">
-            <CopyButton code={copyText} />
+          <div className="canvas-preview-code-summary">
+            <span className="canvas-preview-code-count">
+              {multiFile ? `${files.length} files` : '1 file'} · {files.map((f) => f.name).join(', ')}
+            </span>
+            <CopyButton
+              code={multiFile ? copyAllText : files[0].code}
+              variant="labeled"
+              label={multiFile ? 'Copy all' : 'Copy'}
+              copiedLabel={multiFile ? `Copied ${files.length} files` : `Copied ${files[0].name}`}
+            />
           </div>
-          {cssFile && (
-            <>
-              <div className="canvas-preview-code-label">Feature.css.ts</div>
-              <pre className="canvas-preview-code">
-                <code>{cssFile}</code>
-              </pre>
-            </>
-          )}
-          <div className="canvas-preview-code-label">Feature.tsx</div>
-          <pre className="canvas-preview-code">
-            <code>{componentFile}</code>
-          </pre>
+          {files.map((f) => (
+            <div className="canvas-preview-code-file" key={f.name}>
+              <div className="canvas-preview-code-label">
+                <span>{f.name}</span>
+                {multiFile && <CopyButton code={f.code} variant="icon" copiedLabel={`Copied ${f.name}`} />}
+              </div>
+              <CodeBlock code={f.code} language="tsx" />
+            </div>
+          ))}
         </div>
       ) : (
         // No wrapping box — LivePreview's output sits directly on the
@@ -103,7 +119,24 @@ export function CanvasPreview({ code, showCode }: CanvasPreviewProps) {
   );
 }
 
-function CopyButton({ code }: { code: string }) {
+/**
+ * `variant="labeled"` shows its `label` at rest (the summary-row "Copy all");
+ * `variant="icon"` is icon-only at rest (the per-file button on a filename
+ * row). Both swap to `copiedLabel` text on success — so a per-file copy still
+ * confirms *which* file it took ("Copied Feature.css.ts"), not just a
+ * checkmark that leaves the user guessing.
+ */
+function CopyButton({
+  code,
+  variant = 'icon',
+  label,
+  copiedLabel = 'Copied',
+}: {
+  code: string;
+  variant?: 'labeled' | 'icon';
+  label?: string;
+  copiedLabel?: string;
+}) {
   const [state, setState] = useState<'idle' | 'copied' | 'failed'>('idle');
 
   async function handleClick() {
@@ -119,9 +152,17 @@ function CopyButton({ code }: { code: string }) {
     setTimeout(() => setState('idle'), 1500);
   }
 
+  const text = state === 'copied' ? copiedLabel : state === 'failed' ? 'Copy failed' : label;
+
   return (
-    <button type="button" className="canvas-preview-copy-button" onClick={handleClick} aria-label={state === 'failed' ? 'Copy failed — clipboard access denied' : 'Copy code'}>
+    <button
+      type="button"
+      className={`canvas-preview-copy-button canvas-preview-copy-button--${variant}${state !== 'idle' ? ' canvas-preview-copy-button--feedback' : ''}${state === 'copied' ? ' canvas-preview-copy-button--copied' : ''}`}
+      onClick={handleClick}
+      aria-label={state === 'failed' ? 'Copy failed — clipboard access denied' : label ?? 'Copy code'}
+    >
       {state === 'copied' ? <TbCheck size={14} /> : <TbCopy size={14} />}
+      {text && <span className="canvas-preview-copy-text">{text}</span>}
     </button>
   );
 }
