@@ -5,7 +5,7 @@ import { ChatPanel, type PanelSide } from './ChatPanel';
 import { useAssistant } from './useAssistant';
 import { CanvasPreview } from './CanvasPreview';
 import { extractCodeBlock } from './extractCodeBlock';
-import { THEMES, THEME_NAMES, themeClassName, type ThemeName, type ThemeMode } from './themeRegistry';
+import { THEMES, THEME_NAMES, themeClassName, systemMode, type ThemeName } from './themeRegistry';
 import './appBar.css';
 
 /**
@@ -24,7 +24,10 @@ import './appBar.css';
  */
 function App() {
   const [themeName, setThemeName] = useState<ThemeName>('pearl');
-  const [mode, setMode] = useState<ThemeMode>(THEMES.pearl.defaultMode);
+  // Mode follows the user, not the theme: seeded once from the OS
+  // preference, then only a manual toggle changes it. Switching themes
+  // leaves it alone.
+  const [mode, setMode] = useState(systemMode);
   const assistant = useAssistant(themeName);
   const [side, setSide] = useState<PanelSide>('left');
   const [showCode, setShowCode] = useState(false);
@@ -120,10 +123,6 @@ function App() {
               const next = e.target.value as ThemeName;
               setThemeName(next);
               setThemeChosen(true);
-              // Picking a theme snaps the mode to that theme's default —
-              // Tahitian and South Sea land in dark, Pearl and Freshwater in
-              // light. A manual toggle afterwards still overrides freely.
-              setMode(THEMES[next].defaultMode);
             }}
             aria-label="Canvas theme"
           >

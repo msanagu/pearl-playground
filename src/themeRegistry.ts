@@ -20,21 +20,26 @@ interface ThemeEntry {
   dark: string;
   /** Only Pearl and Tahitian have a luster/overtone extension class — the other two don't export one. */
   extension?: string;
-  /** The mode this theme wants to be met in — Tahitian and South Sea read
-   *  dark-first, Pearl and Freshwater light-first. Picking a theme snaps the
-   *  mode to this; toggling the mode afterwards still overrides freely.
-   *  Mirrors the Storybook registry in the Pearl repo. */
-  defaultMode: ThemeMode;
 }
 
 export const THEMES: Record<ThemeName, ThemeEntry> = {
-  pearl: { label: 'Pearl', light: pearlLightThemeClass, dark: pearlDarkThemeClass, extension: pearlExtensionClass, defaultMode: 'light' },
-  tahitian: { label: 'Tahitian', light: tahitianLightThemeClass, dark: tahitianDarkThemeClass, extension: tahitianExtensionClass, defaultMode: 'dark' },
-  freshwater: { label: 'Freshwater', light: freshwaterLightThemeClass, dark: freshwaterDarkThemeClass, defaultMode: 'light' },
-  'south-sea': { label: 'South Sea', light: southSeaLightThemeClass, dark: southSeaDarkThemeClass, defaultMode: 'dark' },
+  pearl: { label: 'Pearl', light: pearlLightThemeClass, dark: pearlDarkThemeClass, extension: pearlExtensionClass },
+  tahitian: { label: 'Tahitian', light: tahitianLightThemeClass, dark: tahitianDarkThemeClass, extension: tahitianExtensionClass },
+  freshwater: { label: 'Freshwater', light: freshwaterLightThemeClass, dark: freshwaterDarkThemeClass },
+  'south-sea': { label: 'South Sea', light: southSeaLightThemeClass, dark: southSeaDarkThemeClass },
 };
 
 export const THEME_NAMES = Object.keys(THEMES) as ThemeName[];
+
+/**
+ * Light/dark follows the user, never the theme. The initial mode is read
+ * from the OS `prefers-color-scheme` once at startup; after that only a
+ * manual toggle changes it. Switching themes keeps whatever mode the user
+ * is in — no theme carries its own default mode.
+ */
+export function systemMode(): ThemeMode {
+  return typeof window !== 'undefined' && window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
 
 export function themeClassName(name: ThemeName, mode: ThemeMode): string {
   const entry = THEMES[name];
